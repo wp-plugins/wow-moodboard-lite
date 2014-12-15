@@ -1,0 +1,74 @@
+=== Wow Moodboard Lite ===
+Contributors: mschot
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
+Tags: mood board, collage, presentation, youtube, spotify, images, jquery, 
+Requires at least: 4.0
+Tested up to: 4.1
+Stable tag: trunk
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+Add a Mood board to your posts and pages. 
+
+== Description ==
+A mood board is a type of collage consisting of images, text, and samples of objects in a composition. 
+They may be physical or digital, and can be "extremely effective" presentation tools.
+
+With Wow Moodboard you can add a mood board to your posts and pages to visually illustrate the style you wish to pursue and quickly inform your audience of the overall "feel" (or "flow") of your idea/product/article/writing. In other words you can add a collage of Youtube Video's and Images (both uploaded and Google Image Search) to any post or page (including Woocommerce / Jigoshop products) to add that extra edge to your presentation to make it stand out.
+
+**Pro Version Available**
+
+All functionality of the Lite version +
+
+- Allow clients to view YouTube videos from your mood boards fullscreen;
+- Scale your mood boards to different screen sizes;
+- Resize your mood boards;
+- Customize the look of your mood boards;
+- Add music to your mood boards with Spotify Album search;
+- Add links to the images on your mood boards;
+- Receive more search results on Google Image and Youtube searches
+
+More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
+
+== Installation ==
+1. Upload the Plugin to your `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Enter your Google API (see below) key in the settings->Wow Moodboard menu
+4. Insert the shortcode [moodboard] on any page or post where you like to create a collage; 
+5. View your post/page and start filling your mood board, you can drag and resize your objects to position them in your mood board. 
+6. Click on a image to enter/edit it`s caption.
+
+In order to be able to use the Youtube Video search you will need to obtain a (*free*) Google API Key at https://console.developers.google.com/
+
+- Create a project
+- Enable the YouTube Data API v3 in APIs & Auth
+- Create a new Browser Key (credentials)
+- Add the API key to your Wordpress site (Settings ->Wow Moodboard).
+
+== Screenshots ==
+
+1. Edit your mood board inline, you can add images and videos, resize them and add captions
+2. A mood board implemented in a page of a webzine
+3. A mood board implemented in a post in the blog of a fashion label
+
+== Changelog ==
+
+= 1.0.3 =
+* Prevent Loading Moodboards if current location is not is_singular() to prevent trying to load more than 1 moodboard;
+
+= 1.0.2 =
+* Prevent loading the Wow Moodboard Lite plugin when the Pro version is installed and activated;
+* Moved AJAX endpoint functions from functions.php to within the Wow_Moodboard Class to prevent possible mixups with other plugins;
+* Included Upgrade mechanism for Moodboards in case we upgrade to a newer version or to Pro;
+* Updated Jqueryui CSS to version 1.11.2;
+* CSS cleanup for better integration in Twenty Fifteen theme;
+* Solved bug saving error on empty Moodboard;
+
+= 1.0.1 =
+* Updated wowproxy.php to work better with the Cloudflare browser integrity check;
+* Updated Google image search results to escape & and ? in the URLs of the images found;
+* Included jquery-ui.css into assets
+* Included image for Pro version into assets
+
+= 1.0 =
+* Initial version

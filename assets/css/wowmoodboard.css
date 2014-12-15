@@ -1,0 +1,73 @@
+/*
+Part of Name: WoW Moodboard
+Plugin URI: http://wownmedia.com/wow-moodboard/
+Description: CSS for the Wow Moodboard plugin.
+Version: 1.0.3 [ 2014.12.14 ]
+Author: Wow New Media
+Author URI: http://wownmedia.com
+License: GPLv2 or later
+
+	WoW Moodboard, plugin for Wordpress.
+	Copyright © 2014 Wow New Media
+
+	Wow New Media
+	info@wownmedia.com
+	Buzon 621 Sta. Clara
+	03599 Altea la Vella
+	ALC Spain
+	
+*/
+/* General CSS */
+.site-header, #wpadminbar{z-index:2147483647 !important;}
+
+/* Tabs */
+#wowtabs.ui-tabs{border:none;padding:0;}
+#wowtabs.ui-tabs .ui-tabs-nav{background:transparent;border:none;padding:0;margin:0;}
+#wowtabs.ui-tabs .ui-tabs-nav .ui-tabs-anchor{color:rgba(34,34,34,0.25);font-size:0.7em;font-weight:normal;padding:0.35em 1em;border-bottom:none;}
+#wowtabs.ui-tabs .ui-tabs-active .ui-tabs-anchor{color:rgba(34,34,34,0.75);}
+#wowtabs.ui-tabs .ui-tabs-panel{font-size:10px;border:1px solid rgba(34,34,34,0.25);margin:0;height:10em;border-bottom-left-radius:0; border-bottom-right-radius:0; padding:1.5em;border-bottom-width:0;}
+#wowtabs.ui-tabs a:hover,#wowtabs.ui-tabs a:focus{outline:none;}
+#wowtabs.ui-tabs .ui-tabs-panel input{margin-bottom:1em;}
+#googlebranding {float:right;width:auto;max-width:50%;line-height:2em;vertical-align:middle;}
+#googlebranding  td.gsc-input,#googlebranding td.gsc-search-button,#googlebranding td.gsc-clear-button {border-width: 0;}
+#wowtabs.ui-tabs #uploader .plupload_filelist td{display:block; border-width:0; padding:0;}
+#wowtabs.ui-tabs #uploader table.plupload_filelist{margin-bottom:0; border-width:0; background:inherit;}
+#wowtabs.ui-tabs #uploader div.plupload_buttons{padding:0;}
+#wowtabs.ui-tabs #uploader .plupload_button, #wowtabs.ui-tabs button {background:none;background-color:rgb(51,51,51);font-family:Verdana,Arial,sans-serif;padding:0.8125em 1.625em;line-height:normal;border:0;color:#fff;cursor:pointer;text-transform:uppercase;font-weight:700;}
+#wowtabs.ui-tabs #uploader .plupload_button .ui-button-text{padding:0 0 0 1.25em;font-size:1em;}
+#wowtabs.ui-tabs #uploader .plupload_progress_container{margin-top:1em; border-color:transparent;}
+#wowtabs.ui-tabs #uploader .ui-progressbar .ui-progressbar-value{margin:0; border-color:rgba(34,34,34,0.25);}
+#wowtabs.ui-tabs #uploader .plupload_header, #wowtabs.ui-tabs #uploader .plupload_filelist td.plupload_file_status, #wowtabs.ui-tabs #uploader .plupload_filelist td.plupload_file_size{display:none;}
+
+/* Imagescroller */
+#imagescroller.scroll-pane{background:rgba(228,228,228,1);border:1px solid rgba(34,34,34,0.25);border-top-width:0;padding:1.5em 0;font-size:0.4em; margin-bottom:1.5em;overflow:hidden;width:100%;float:none;}
+#clearsearchresults{margin-right:1.5em;font-size:10px;float:right;width:auto;}
+#canvasimages.scroll-content {display:block;height:100px;overflow:hidden;width:100%;float:left;}
+#canvasimages div.scroll-content-item{float:left;width:auto;margin:0 5px;height:100px;line-height:100px;text-align:center;}
+#canvasimages img{height:70px;width:auto;}
+#canvasimages img, #canvas img{background-color:transparent; border-width:0; padding:0; box-shadow:none;}
+#imagescroller .ui-widget-content{border:none;}
+#imagescroller .scroll-bar-wrap {clear:left;padding:0;margin:0 1px;}
+#imagescroller .scroll-bar-wrap .ui-slider {border:0;height:2.5em;}
+#imagescroller .scroll-bar-wrap .ui-handle-helper-parent {position:relative;width:100%;height:100%;margin:0 auto;border:1px solid #aaaaaa; border-left-width:0;border-right-width:0;}
+#imagescroller .scroll-bar-wrap .ui-handle-helper-parent .ui-slider-handle {top:0;height:100%;}
+#imagescroller .scroll-bar-wrap .ui-handle-helper-parent .ui-slider-handle .ui-icon {margin: 0 auto;position:relative;top:0;}
+.drop-hover{overflow:visible;display:block;font-size:inherit;}
+
+/* Moodboard Canvas */
+#canvas.wowcanvas{ border-color:rgba(51,51,51,0.2);}
+#canvas.woweditcanvas{border-color:rgba(51,51,51,0.7);}
+#canvas.woweditcanvas,#canvas.wowcanvas{height:500px;width:100%;position:relative;overflow:hidden;border-style:dashed;border-radius:0 0 8px 8px;margin-bottom:2em;border-width:1px;background-color: transparent;-webkit-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);-moz-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);}
+#loading{height:100%;}
+#loading img{display:block;margin:1px auto;top:45%;position:relative;}
+
+/* Objects */
+#canvas object{position:absolute; background-color:transparent;box-shadow: 0 3px 10px rgba(0,0,0,0.7);}
+#canvas.woweditcanvas .overlay{position:absolute;bottom:0 !important;left:0 !important;right:0 !important;top:0 !important;}
+#canvas.woweditcanvas .dragging-overlay{cursor:move;}
+#canvas.wowcanvas .dragging-overlay{cursor:pointer;}
+.wow-caption, .wow-captionedit{background-color:rgba(0, 0, 0, 0.5);border-color: rgb(255, 255, 255);border-style:none;border-width:0;bottom:0; color: rgb(255, 255, 255);font-family:Arial;font-size:1em;font-weight:500;height:auto;line-height:1.5em;margin:0;min-height:1.5em;padding:0.25em 0;position:absolute;text-align:center;text-decoration:none;text-shadow:none;transform:translate3d(0px,0px,0px);width:100%;}
+.wow-caption{display:none;}
+.wow-captionedit{background-color:white;color:#111;}
+#canvas div.instructions {color:rgba(51,51,51,0.4);margin:0 auto;max-width:75%;text-align:center;z-index:0;font-size:0.75em;}
+#canvas.woweditcanvas p.deleteBtn{background-color:rgba(255,0,0,0.7);border-bottom-right-radius:15px;color:white;cursor:pointer;font-size:17px;font-weight: bold;line-height:1em;padding:8px 10px;position:absolute;font-family:FontAwesome;margin:0;}
