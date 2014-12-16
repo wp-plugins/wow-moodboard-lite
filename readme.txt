@@ -1,14 +1,14 @@
 === Wow Moodboard Lite ===
 Contributors: mschot
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
-Tags: mood board, collage, presentation, youtube, spotify, images, jquery, 
+Tags: mood board, collage, presentation, youtube, images, jquery
 Requires at least: 4.0
 Tested up to: 4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Add a Mood board to your posts and pages. 
+Visually stand out, add a mood board with images and YouTube videos to your posts and pages. 
 
 == Description ==
 A mood board is a type of collage consisting of images, text, and samples of objects in a composition. 
