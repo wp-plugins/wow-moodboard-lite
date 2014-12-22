@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The moodboard template for the Wow Moodboard Lite plugin.
-Version: 1.0.2 [ 2014.12.14 ]
+Version: 1.0.4 [ 2014.12.19 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -36,6 +36,11 @@ else
 
 <div id='moodboard'>	
 <?php if ( isset( $edit ) && $edit ) : ?>
+	<div id="editmode">   
+    	<input type="checkbox" id="switcheditmode" >
+        <label for="switcheditmode"><?php echo translate( 'Hide Edit-mode' ); ?></label>
+    </div>
+    <div id="wow-edit-panel" style='display:none;'>
 	<div id='wowtabs' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>
     	<ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'>
         	<li class='wowtab'>
@@ -61,7 +66,7 @@ else
         <div id='googlesearch' class='ui-tabs-panel ui-widget-content'>
         	<label> 
 				<input type='text' id='googleimagesearchquery' value=''/>
-				<span id='googlebranding'></span>
+				<span id='googlebranding' class='googlebranding'></span>
 				<button id='image-search-button' disabled onclick='googleimagesearch()'><?php echo translate( 'Image Search' ); ?></button>
             </label>
         </div>
@@ -95,6 +100,7 @@ else
  			echo absint( $_REQUEST[ 'file' ] );
 		}
 	?>
+    </div>
 <?php endif ?>           
 	<div id='canvas' class='<?php echo $canvasclass; ?>'>
     	<div id='loading'><img src='<?php echo plugins_url( '/assets/images/ajax-loader.gif', dirname(__FILE__) ); ?>' alt='Loading Moodboard' /></div>
@@ -108,7 +114,15 @@ var wowproxyurl  = '<?php echo plugins_url( "wowproxy.php", dirname(__FILE__) );
 <!--
 jQuery( document ).ready(function() 
 {
-	loadCanvas( <?php echo json_encode( wp_create_nonce( 'wowcanvas-security'.$postid ) ); ?>, <?php echo json_encode( $postid ); ?> );		
+	<?php if ( isset( $edit ) && $edit ) : ?>
+	loadEditMode();
+	<?php endif ?>   
+	
+	initMoodboard( <?php echo json_encode( wp_create_nonce( 'wowcanvas-security'.$postid ) ); ?>, <?php echo json_encode( $postid ); ?> );	
+	
+	<?php if ( isset( $edit ) && $edit ) : ?>	
 	CreateScrollbar();
+	<?php endif ?>   
+
 });
 //--></script>

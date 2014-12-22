@@ -1,11 +1,11 @@
 <?php
 /*
 Part of Name: WoW Moodboard Lite
-Plugin URI: http://wownmedia.com/wow-moodboard/
+Plugin URI: https://wownmedia.com/wow-moodboard/
 Description: Create the admin environment for the Wow Moodboard plugin.
-Version: 2014.12.09
+Version: 1.0.4 [ 2014.12.19 ]
 Author: Wow New Media
-Author URI: http://wownmedia.com
+Author URI: https://wownmedia.com
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.

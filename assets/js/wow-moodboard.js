@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite / Pro
-   Version: 2014.12.09
+   Version: 1.0.4 [ 2014.12.20 ]
    Author: Wow New Media
    Description: JavaScript functions used to load and manage the WoW MoodBoard
    Status: Production
@@ -7,20 +7,21 @@
    Load before </body>
 */
 
-// Initate the Canvas, create functionality and load all Objects
-// Last update: 2014.12.09
-function loadCanvas ( wownonce, postid ) 
-{ 
+// Initate the Moodboard and create it's functionality.
+// Last update: 2014.12.19
+function initMoodboard ( wownonce, postid )
+{
+	// Create a local copy of jQuery for Speed and to prevent jQuery-$ errors
+	var jQ = jQuery;
+	
 	// Export nonce and postid to global because we need them later to save the mood board back to Wordpress
 	window.wownonce = wownonce;
 	window.postid   = postid;
-
-	// Create a local copy of jQuery for Speed and to prevent $ errors
-	var jQ = jQuery;
-
-	// Receive the contents for this Moodboard by AJAX
+	window.mbwidth  = jQ( "#canvas").width(); // Used to check if the width of the Moodboard has changed after a window resize
+	
+	// Receive the settings for this Moodboard by AJAX
 	try {
-
+	
 	jQ.post(
 		ajaxurl,
     	{
@@ -29,231 +30,231 @@ function loadCanvas ( wownonce, postid )
 			security: wownonce
 	   	},
     	function( response ) 
-		{				
-    	   	// Add all objects from this canvas (JSON)
+		{
 			try {
-				var canvascontent   = JSON.parse( response );
-			} catch ( e ) { console.log( "Error Parsing Moodboard contents from Wordpress (check pushcanvas function): " + e ); }
 			
-			var objects = canvascontent.content;
-			var index   = objects.length;
-			window.edit	= canvascontent.edit;
+			// Receive all objects for this Moodboard from WordPress backend (JSON) 
+			var moodboardconfig = JSON.parse( response );
+			
+			} catch ( e ) { console.log( "Error Parsing Moodboard config from Wordpress (check pushcanvas function): " + e ); }
 
-			// Clear the MoodBoard before we add anything
-			var $dropzonecanvas = jQ( "#canvas" );
-			$dropzonecanvas.empty();
-				
-			// Add all items, Only on non-empty Moodboards
-			if ( index ) 
-			{	
-				// Create the scale of the moodboard that has been saved (100%) 
-				// and the moodboard that is beeing showed (x%);
-				var widthscale  = Math.round( $dropzonecanvas.width() / canvascontent.width );
-				var heightscale = Math.round( $dropzonecanvas.height() / canvascontent.height );
-
-				// Set the Index to point to the last item in the array of objects
-				index--;
-				
-				// Add all the objects to the MoodBoard
-				do { // This is faster than a for - in loop
-					switch ( objects[ index ].type ) 
+			// The Moodboard configuration
+			var canvasheight = typeof moodboardconfig.height    !== 'undefined' ? moodboardconfig.height    : 500;
+			var bgimage		 = typeof moodboardconfig.bgimage   !== 'undefined' ? moodboardconfig.bgimage   : "";
+			var bgcontain	 = typeof moodboardconfig.bgcontain !== 'undefined' ? moodboardconfig.bgcontain : "inherit";
+			var bgrepeat	 = typeof moodboardconfig.bgrepeat  !== 'undefined' ? moodboardconfig.bgrepeat  : "round";
+			window.edit		 = typeof moodboardconfig.edit      !== 'undefined' ? moodboardconfig.edit      : false;
+			
+			// Create the Moodboard object, set it's height and set it's background
+			var Moodboard = jQ( "#canvas" );
+			var cssheight = canvasheight + "px";
+			Moodboard.css( { 'height'           : cssheight, 
+							 'background-repeat': bgrepeat, 
+							 'background-size'  : bgcontain, 
+							 'background-image' : bgimage 
+			} );
+			
+			// Setup the functionality of the Moodboard
+			// Setup a Basic Moodboard which is only viewable
+			if( edit != true )
+			{
+				Moodboard.delegate( 'object', 
+				{ 
+					// Move the object to the front of the Moodboard
+					// Show/Hide the caption
+					mouseenter: function() 
+					{ 
+						bringtoFront( jQ( this ), '.dragging-overlay' ); 
+						showCaption( jQ( this ) );
+					},
+					mouseleave: function() 
 					{
-						// Add a YouTube Video
-						case "youtube#video":
-							if (typeof addYoutubeVideo == 'function') 
-							{ 
-								addYoutubeVideo( objects[ index ], widthscale, heightscale );
-							}
-							break;
-							
-						// Add an Image
-						case "uploaded#image":
-						case "google#image":
-							if (typeof addImage == 'function') 
-							{ 
-								addImage( objects[ index ], widthscale, heightscale );
-							}
-							break;
-						
-						// Add a Spotify Music Album
-						case "spotify#album":
-							if (typeof addSpotifyAlbum == 'function') 
-							{ 
-								addSpotifyAlbum( objects[ index ], widthscale, heightscale );
-							}
-							break;
-								
-						default:
-							break;	
-					} // Switch Object type
-				} while( index-- );
-			} // if index
-			
-			else // This is an Empty Moodboard
-			{
-				// Show the instructions on how to use the moodboard when we are in edit mode
-				if( edit === true ) 
-				{
-					var wowinstructions = jQ( "<div class='instructions'><h3>" 
-												+ canvascontent.header + "</h3><p>" 
-												+ canvascontent.instructions + "</p></div" );
-					$dropzonecanvas.prepend( wowinstructions );
-				}
-				
+						hideCaption( jQ( this ) );
+					} 
+				} );
 			}
-			// Check if we show a canvas that can be edited or a static canvas
-		
-			if( edit === true )
-			{
 
-				// Activate Tabs with jQueryui
-				jQ( "#wowtabs" ).tabs();
+			// Setup a Moodboard that can be edited
+			else if( edit === true )
+			{	
+				Moodboard.delegate( 'object', 
+				{ 
+					// Set the functionality for a delete button so we can remove objects from the Moodboard
+					// Show/Hide the caption
+					mouseenter: function () 
+					{
+						ShowDeleteButton( jQ( this ) );
+						showCaption( jQ( this ) );
+					},
+					mouseleave: function() 
+					{
+						RemoveDeleteButton( jQ( this ) );
+						hideCaption( jQ( this ) );
+					}
+				} );
 				
-				// Activate the Dropzone
-				$dropzonecanvas.droppable( 
+				// Set the Event handler to push items to the front while dragging and when clicked
+				Moodboard.delegate( '.dragging-overlay', 
+				{ 
+					mousedown: function() 
+					{ 
+						bringtoFront( jQ( this ), '.dragging-overlay' ); 
+					},
+					click: function() 
+					{ 
+						showCaptionEdit( jQ( this ) );
+					},
+					mouseleave: function() 
+					{
+						hideCaptionEdit( jQ( this ) );
+					}
+				} );				
+				
+				// Update the caption when it's changed				
+				Moodboard.delegate( '.wow-captionedit', 
+				{ 
+					keyup: function() 
+					{
+						saveCaption( jQ( this ) );
+					}
+				} );
+				
+				// Delete this object when it's delete button is clicked
+				Moodboard.delegate( ".deleteBtn", 
+				{
+					click: function() 
+					{ 
+						DeleteObject( jQ( this ).parent() );
+					}
+				} );
+				
+				// Activate the Dropzone for new objects to be added
+				Moodboard.droppable( 
 				{
 					accept: function( d ) 
 					{ 
+						// Only allow elements from the search results bar to be added
 						return d.closest( "#canvasimages" ); 
 					},
 					activeClass: "ui-state-highlight",
 					hoverClass:	 "drop-hover",
    					drop:		 dragDropDiv,
-					tolerance: 	 'intersect',
+					tolerance: 	 'touch',
 					greedy: 	 true,
 				} );
-			
-				// Set the Event handler to push items to the front while dragging and when clicked
-				$dropzonecanvas.delegate( '.dragging-overlay', 
-				{ 
-					mousedown: function() 
-					{ 
-						// Bring the Object to the front for dragging
-						jQ( this ).parent().css( 'z-index', 200000 ); 
-					},
-					
-					click: function() 
-					{ 
-						bringFront( "#" + jQ( this ).attr( 'id' ), '.dragging-overlay' ); 
-						
-						// Show the Caption Edit box
-						if ( ! jQ( this ).find( '.wow-captionedit' ).length )
-						{
-							jQ( this ).append( jQ( "<input type='text' class='wow-captionedit'></input>" ).val( 
-								jQ( this ).find( '.wow-caption' ).text() ) 
-							); 
-						}
-						jQ( this ).find( '.wow-caption' ).hide();						
-						saveCanvas( wownonce );
-					},
-					
-					mouseleave: function() 
-					{
-						jQ( this ).find( '.wow-captionedit' ).remove();
-					}
-				} );
-				
-				// Set the functionality for a delete button so we can remove objects from the MoodBoard
-				$dropzonecanvas.delegate( 'object', 
-				{ 
-					mouseenter: function () 
-					{
-						// Show a Delete Button
-						var zIndex = jQ( this ).find( '.dragging-overlay' ).zIndex() + 5;
-						var deleteBtn = '<p class="deleteBtn" title="Delete" style=";top:0px;left:0px; z-index:' 
-										+ zIndex + '"><i class="fa fa-trash-o"></i></p>';
-						// Remove all other delete buttons and add the new one
-						jQ( "#canvas" ).find( '.deleteBtn' ).remove();
-						jQ( this ).append( deleteBtn );	
-					},
-					mouseleave: function() 
-					{
-						jQ( this ).parent().find( '.deleteBtn' ).remove();
-					}
-				});
-
-				//THE DELETE BUTTON CLICK EVENT
-				$dropzonecanvas.delegate( ".deleteBtn", 
-				{
-					click: function() 
-					{ 
-						jQ( this ).parent().remove();
-						saveCanvas( wownonce );
-					}
-				} );
-
-				// Update the caption when it's changed				
-				$dropzonecanvas.delegate( '.wow-captionedit', 
-				{ 
-					keyup: function() 
-					{
-						var caption = jQ( this ).closest( 'object' ).find( 'img' );
-						caption.attr( 'title', jQ( this ).val() );
-						caption.attr( 'alt', jQ( this ).val() );
-						jQ( this ).parent().find( '.wow-caption' ).text( jQ( this ).val() );
-						saveCanvas( wownonce );
-					}
-				} );
 								
-			} // If edit === true
+			} // End else if edit === true
 			
-			// Create the functionality for a MoodBoard that can't be edited
+			// Now Populate the Moodboard
+			loadCanvas( wownonce, postid );
+		
+		} ); // End AJAX Response function
+
+	} catch ( e ) { console.log( "Error initMoodboard: " + e ); }		
+}
+
+
+// Populate the Moodboard with all it's Objects
+// Last update: 2014.12.19
+function loadCanvas ( security, wppostid ) 
+{ 
+	// Create a local copy of jQuery for Speed and to prevent $ errors
+	var jQ = jQuery;
+	
+	// Receive the contents for this Moodboard by AJAX
+	try {
+
+	jQ.post(
+		ajaxurl,
+    	{
+	       	action :  'pushcanvas',
+			postid :  wppostid,
+			security: security
+	   	},
+    	function( response ) 
+		{				
+    	   	// Receive all objects for this Moodboard from WordPress backend (JSON)
+			try {
+				var moodboardcontent   = JSON.parse( response );
+			} catch ( e ) { console.log( "Error Parsing Moodboard contents from Wordpress (check pushcanvas function): " + e ); }
+			
+			// Populate Variables
+			var Moodboard   = jQ( "#canvas" );
+			var objects     = moodboardcontent.content; // Our Objects placed on this Moodboard
+			var index       = objects.length;			 // The number of objects placed on this Moodboard
+
+			// In case the 'switcheditmode' checkbox is checked, the user has adminrights but want to see the Moodboard as a regular user
+			var edit	    = jQ( "#switcheditmode" ).is( ':checked' ) ? false : moodboardcontent.edit;
+			var canvaswidth = typeof moodboardcontent.width  !== 'undefined' ? moodboardcontent.width  : Moodboard.width();
+
+			// Clear the MoodBoard before we add anything and set it's background
+			Moodboard.empty();
+			ResetOffsetWindow();
+	
+			// Add all items, Only on non-empty Moodboards
+			if ( index ) 
+			{	
+				index--;
+
+				// Create the scale of the moodboard that has been saved (100%) 
+				// and the moodboard that is beeing showed (x%);
+				var objectscale = typeof moodboardpro !== 'undefined' ? Number( Moodboard.width() ) / Number( canvaswidth ) : 1;
+				
+				// Add all our objects to the Moodboard
+				do { addObjecttoMoodboard( objects[ index ], objectscale ); } while( index-- );
+			}
+			
+			// Setup an Empty Moodboard
 			else 
 			{
-				jQ( "#canvas" ).delegate( 'object', 
-				{ 
-					mouseenter: function () { bringFront( "#" + jQ( this ).attr( 'id' ), '.dragging-overlay' ); }
-				} );
-			} //edit === false		
-			
-			// Show the caption on mouseover
-			jQ ( "#canvas" ).delegate( 'object', 
-			{
-				mouseenter: function () 
+				// Show the instructions on how to use the moodboard when we are in edit mode
+				if( edit === true ) 
 				{
-					if ( jQ( this ).find( '.wow-caption' ).text().length ) // Only show this when we actually have a caption
-					{
-						jQ( this ).find( '.wow-caption' ).show();
-					}
-				},
-				
-				mouseleave: function() 
-				{
-					jQ( this ).find( '.wow-caption' ).hide();
-				} 
-			} );
-    	}
+					var wowinstructions = jQ( "<div class='instructions'><h3>" + moodboardcontent.header + "</h3>" 
+												+ "<p>" + moodboardcontent.instructions + "</p></div" );
+					Moodboard.prepend( wowinstructions );
+				}	
+			}			
+    	
+			// Initialize the canvas to be resized (Pro version only)
+			if (  edit === true && typeof( setResizableCanvas ) == "function" ) 
+			{	
+				setResizableCanvas();
+			}
+		}
 	);	
-
-	} catch ( e ) { console.log( "Error LoadCanvas: " + e ); }
+	} catch ( e ) { console.log( "Error Populate Moodboard (loadcanvas): " + e ); }
 } // Loadcanvas
 	
 
 // Prepare search results and uploaded images so they can be dragged and dropped on the MoodBoard
-// Last Change: 2014.12.09
-// Input: domid == the #ID of the object to be dragged; object = array with information regarding #ID 
-function setDraggable( domid, object ) 
+// Last Change: 2014.12.19
+function setDraggable( thumbnailID, payload ) 
 {
 	// Create a local copy of jQuery for Speed and to prevent $ errors
-	var jQ         = jQuery;	
-	var $dragimage = jQ( domid );
+	var jQ            = jQuery;	
+	var dragThumbnail = jQ( thumbnailID );
 	
 	// Configure the object
 	try {
 	
-	$dragimage.draggable(
+	var topZindex = getHighestZindex( '.dragging-overlay' ) + 5000;
+
+	dragThumbnail.draggable(
 	{
 		helper:      'clone',
 		containment: '#canvas',
 		cursor:      'move',
 		revert:      'invalid',
 		stack:       '.dragging-overlay',
-		zIndex:      500000,
-		appendTo:    'body',
+		zIndex:      topZindex,
+		appendTo:    '#canvas',
+		refreshPositions: true,
+
 		start: function( event, ui ) 
 		{	
 			// Prepare each type of search results in it's own way
-			switch ( object.type ) 
+			switch ( payload.type ) 
 			{
 				// YouTube Video Search result
 				case "youtube#video":
@@ -262,20 +263,22 @@ function setDraggable( domid, object )
 					ui.helper.height( 210 );
 					break;
 				
-				// Uploaded Image and Google Image Search result
+				// Uploaded Image, Google Image Search result, Seamless image for background
 				case "uploaded#image":
 				case "google#image":	
+				case "background#image":				
 					// Start preloading the full size image while draggingit to the MoodBoard
-					var imgEl    = new Image();
-					imgEl.onload = function() { };
-					imgEl.src    = object.unescapedUrl; 
-								
+					var imageWidth = 280;
+					var imgEl      = new Image();
+					imgEl.onload   = function() { };
+					imgEl.src      = payload.unescapedUrl; 
+					
 					// Set the dimensions for the image while dragged and when dropped
 					// We start with a fixed width and calculate the height of the image
-					ui.helper.width( 280 );
-					ui.helper.height( Math.round( 280 / object.tbWidth * object.tbHeight ) );
+					ui.helper.width( imageWidth );
+					ui.helper.height( imageWidth / payload.tbWidth * payload.tbHeight );
 					break;
-					
+				
 				// Spotify Album Search result
 				case "spotify#album":
 					// Set the dimensions for the image of the Spotify Album while dragged and when dropped
@@ -284,39 +287,129 @@ function setDraggable( domid, object )
 					break;
 					
 				default:
-					break;
 			} // Switch object.type
 		} // Function start dragging
-	} ); // $dragimage.draggable
+	} ); // dragThumbnail.draggable
 		
 	// set the data payload for the object 
-	$dragimage.data( 'object', object ); 
+	dragThumbnail.data( 'object', payload ); 
 		
 	} catch ( e ) { console.log( "Error Prepare Drag for search results: " + e ); }	
 } // END Function setDraggable
 
 
+// Make an element on the Moodboard Draggable
+// Last change: 2014.12.19
+function makeDraggable( ObjectID ) 
+{		
+	var jQ         = jQuery; // Local cache for jQuery	
+	var dragObject = jQ( ObjectID );
+	var overlayid  = dragObject.find( ".dragging-overlay" );
+						
+	// Setup the drag object
+	var topZindex = getHighestZindex( '.dragging-overlay' ) + 5000;
+	
+	overlayid.draggable(
+	{
+		containment: '#canvas',
+		appendTo: 	 "body",
+		iframeFix: 	 true,
+		cursor: 	 'move',
+		revert: 	 "invalid",
+		stack: 		 ".dragging-overlay",
+		zIndex: 	 topZindex,
+		refreshPositions: true,
+
+		drag: function( event, ui ) 
+		{
+			var left = ui.offset.left - window.offsetX;
+			var top  = ui.offset.top - window.offsetY;
+			var zIndex = topZindex + 100;
+       		dragObject.css( { 'left': left, 'top': top,'z-index': zIndex } );
+       	},
+
+		stop: function( event, ui ) 
+		{
+			bringtoFront( dragObject, '.dragging-overlay' ); 			
+			// Save the changed Object to DB
+			saveCanvas( wownonce );
+		}
+	});
+} // END makeDraggable
+
+
+// Make a element on the Moodboard Resizeable
+// Last change: 2014.12.15
+function makeResizeable( ObjectID ) 
+{		
+	var jQ = jQuery; // Local cache for jQuery
+				
+	// Setup the Canvas and object
+	var sizeObject = jQ( ObjectID );
+	var overlay    = sizeObject.find( ".dragging-overlay" );
+	
+	// Reset the resize config if it has been set already
+	if ( overlay.is( '.ui-resizable' ) )
+	{
+		overlay.resizable( "destroy" );
+	}
+
+	// Create compensation for padding during resize
+	var widthcompensation  = sizeObject.width()  - overlay.width();
+	var heightcompensation = sizeObject.height() - overlay.height();
+	
+	setTimeout( function() 
+	{
+		
+	var resizeObject = overlay.resizable( 
+	{ 
+		aspectRatio: true,
+		handles: "all",
+		maxWidth: 1000,
+		minWidth: 150,
+		autoHide: false,
+		containment: "#canvas",
+		
+		resize: function( event, ui ) 
+		{
+			clearTimeout( window.resizeID ); // Clear the event for the window resize to prevent reload of the moodboard
+			
+			var width  = ( ui.size.width  + widthcompensation ) + "px";
+			var height = ( ui.size.height + heightcompensation ) + "px";
+			sizeObject.css( { 'width': width, 'height': height } );
+		},
+		stop: function( event, ui ) 
+		{
+			saveCanvas( window.wownonce );	
+		}
+	} );
+	
+	}, 500);
+} // END makeResizeable
+
+
 // Add a new object to the MoodBoard
-// Last Change: 2014.12.09
+// Last Change: 2014.12.20
 function dragDropDiv( event, ui )
 {
-	// Create a local copy of jQuery for Speed and to prevent $ errors
-	var jQ = jQuery;
-	
 	try {
 		
-	// Check if we have a new Object or if we are just moving around
+	// Check if we are adding a new Object
 	if ( ui.draggable && ui.draggable.data( 'object' ) ) 
 	{
 		// Prepare our MoodBoard to add this new object; use local variables for speed
-		// Make sure we have the correct position on the screen ( offset )
-		var $dropzone    = jQ( '#canvas' );
-		var offset       = ui.offset;
-		var canvasOffset = $dropzone.offset();
-		var offsetX      = Math.round( offset.left - canvasOffset.left );
-		var offsetY      = Math.round( offset.top - canvasOffset.top );
+		var offset  = ui.position;
+		var offsetX = offset.left; 
+		var offsetY = offset.top; 
 		
-		// check if if our object is an image, youtube video, etc and prepare accordingly
+		// Set general options for all data types
+		var Addobject         = {};
+		Addobject[ 'zindex' ] = getHighestZindex( '.dragging-overlay' ) + 1;
+		Addobject[ 'type' ]   = ui.draggable.data( 'object' ).type;
+		Addobject[ 'top' ]    = offsetY;
+		Addobject[ 'left' ]   = offsetX;
+
+		// set options per data type
 		switch ( ui.draggable.data( 'object').type ) 
 		{
 			// YouTube Video
@@ -327,21 +420,17 @@ function dragDropDiv( event, ui )
 				// And check if we do not already have an object with this id, so we don't add the same Video twice
 				if ( document.getElementById( id ) == null && typeof addYoutubeVideo == 'function' ) 
 				{
-					var object            = {}; // This is the YouTube object to be added to the MoodBoard	
-					object[ 'id' ]        = id;
-					object[ 'type' ]      = ui.draggable.data( 'object' ).type;
-					object[ 'top' ]       = offsetY;
-					object[ 'left' ]      = offsetX;
-					object[ 'width' ]     = 280;
-					object[ 'height' ]    = 210;
-					object[ 'content' ]   = ui.draggable.data( 'object' ).id.videoId;
-					object[ 'caption' ]   = ui.draggable.data( 'object' ).snippet.title;
-					object[ 'zindex' ]    = getHighestZindex( '.dragging-overlay' ) + 1;
-					object[ 'thumbnail' ] = ui.draggable.data( 'object' ).snippet.thumbnails.default.url;
+					 // This is the YouTube object to be added to the MoodBoard	
+					Addobject[ 'id' ]        = id;
+					Addobject[ 'type' ]      = ui.draggable.data( 'object' ).type;
+					Addobject[ 'width' ]     = 280;
+					Addobject[ 'height' ]    = 210;
+					Addobject[ 'content' ]   = ui.draggable.data( 'object' ).id.videoId;
+					Addobject[ 'caption' ]   = ui.draggable.data( 'object' ).snippet.title;
+					Addobject[ 'thumbnail' ] = ui.draggable.data( 'object' ).snippet.thumbnails.default.url;
 		
 					// Add the video to the canvas and bring it forward
-					addYoutubeVideo( object, 1, 1 );
-					saveCanvas( wownonce );
+					addYoutubeVideo( Addobject, 1 );
 				}
 				break;
 			
@@ -354,22 +443,15 @@ function dragDropDiv( event, ui )
 				// And check if we do not already have an object with this id, so we don't add the same Image twice
 				if ( document.getElementById( id ) == null && typeof addImage == 'function' ) 
 				{
-					var object            = {}; 
-					object[ 'id' ]        = id;
-					object[ 'type' ]      = ui.draggable.data( 'object' ).type;
-					object[ 'top' ]       = offsetY;
-					object[ 'left' ]      = offsetX;
-					object[ 'width' ]     = 280;
-					object[ 'height' ]    = Math.round( 280 / ui.draggable.data( 'object').width * ui.draggable.data( 'object' ).height );
-					object[ 'content' ]   = ui.draggable.data( 'object' ).unescapedUrl;
-					object[ 'caption' ]   = (typeof ui.draggable.data( 'object' ).title == "undefined" || ui.draggable.data( 'object' ).title == null) ? "" : ui.draggable.data( 'object' ).title;
-					object[ 'zindex' ]    = getHighestZindex( '.dragging-overlay' ) + 1;
-					object[ 'thumbnail' ] = ui.draggable.data( 'object' ).tbUrl;
+					Addobject[ 'id' ]        = id;
+					Addobject[ 'width' ]     = 280;
+					Addobject[ 'height' ]    = 280 / ui.draggable.data( 'object').width * ui.draggable.data( 'object' ).height;
+					Addobject[ 'content' ]   = ui.draggable.data( 'object' ).unescapedUrl;
+					Addobject[ 'caption' ]   = (typeof ui.draggable.data( 'object' ).title == "undefined" || ui.draggable.data( 'object' ).title == null) ? "" : ui.draggable.data( 'object' ).title;
+					Addobject[ 'thumbnail' ] = ui.draggable.data( 'object' ).tbUrl;
 						
 					// Add the Dropped Image to the MoodBoard
-					var image = addImage( object, 1, 1 );
-					saveCanvas( wownonce ); // Save the version with the full image
-
+					addImage( Addobject, 1 );
 				} // If
 				break;
 				
@@ -381,27 +463,27 @@ function dragDropDiv( event, ui )
 				// And check if we do not already have an object with this id, so we don't add the same Album twice
 				if ( document.getElementById( id ) == null && typeof addSpotifyAlbum == 'function'  ) 
 				{
-					var object            = {}; 
-					object[ 'id' ]        = id;
-					object[ 'type' ]      = ui.draggable.data( 'object' ).type;
-					object[ 'top' ]       = offsetY;
-					object[ 'left' ]      = offsetX;
-					object[ 'width' ]     = 250;
-					object[ 'height' ]    = 80;
-					object[ 'content' ]   = ui.draggable.data( 'object' ).uri;
-					object[ 'caption' ]   = ui.draggable.data( 'object' ).name;
-					object[ 'zindex' ]    = getHighestZindex( '.dragging-overlay' ) + 1;
-					object[ 'thumbnail' ] = ui.draggable.data( 'object' ).images[ 1 ].url;
+					Addobject[ 'id' ]        = id;
+					Addobject[ 'width' ]     = 250;
+					Addobject[ 'height' ]    = 80;
+					Addobject[ 'content' ]   = ui.draggable.data( 'object' ).uri;
+					Addobject[ 'caption' ]   = ui.draggable.data( 'object' ).name;
+					Addobject[ 'thumbnail' ] = ui.draggable.data( 'object' ).images[ 1 ].url;
 
 					// Add Album to Canvas and bring it forward
-					var spotify = addSpotifyAlbum( object, 1, 1 );
-					saveCanvas( wownonce );
+					addSpotifyAlbum( Addobject, 1 );
 				} // if
 				break;
 					
-			default:
+			// Seamless image for background	
+			case "background#image":
+				//set the image as background for this moodboard
+				jQuery( '#canvas' ).css( "background-image", "url(" + ui.draggable.data( 'object' ).unescapedUrl + ")" );
 				break;
+			default:
+			
 		} // Switch object.type	
+		saveCanvas( wownonce );
 
 	} // if 
 	
@@ -409,73 +491,22 @@ function dragDropDiv( event, ui )
 } // END Function dragDropDiv
 
 
-// Add a Image to the Moodboard
-// Last change: 2014.12.09
-// Input: object: array(id, type, top, left, width, height, zindex, thumbnail, content, caption)
-// Output: id for the newly added object: string
-function addImage( object, widthscale, heightscale ) 
-{
-	try {
-	var jQ     = jQuery; // Local cached version for jQuery
-	var top    = Math.round( object[ 'top' ] * heightscale );
-	var left   = Math.round( object[ 'left' ] * widthscale );
-	var width  = Math.round( object[ 'width' ] * widthscale );
-	var height = Math.round( object[ 'height' ] * widthscale );
-		
-	var NewObject = jQ( '<object></object>' , 
-	{
-		"id": object[ 'id' ],
-		"class": "image-border",
-		"style": 'top:' + top + 'px; left:' + left +'px; z-index:' + object[ 'zindex' ] + '; background-image: url(' + object[ 'thumbnail' ] + '); background-size: 100% auto;',
-		"type": object[ 'type' ],
-		"width": width,
-		"height": height,
-		"thumbnail": object[ 'thumbnail' ],
-	} ).append( jQ( '<img/>' , 
-	{
-		"src": object[ 'content' ],
-		"title": object[ 'caption' ],
-		"alt": object[ 'caption' ],
-		"width": width,
-		"height": height,
-		"style": 'width: 100%; height:100%;',
-	} ) ).append( jQ( "<div></div>" ,
-	{
-		"class": "dragging-overlay overlay",
-		"id": "overlay" + object[ 'id' ],
-		"style": 'z-index:' + Math.round( object[ 'zindex' ] ) + ';'
-	} ) );
-	
-	jQ( '#canvas' ).append( NewObject );
-	
-	jQ( "#overlay" + object[ 'id' ] ).append( jQ( "<div></div>",
-	{
-		"class": "wow-caption",
-		"id": "caption" + object[ 'id' ],
-	} ).text( object[ 'caption' ] ) );
-	
-	// Make the newly added object draggable	
-	makeDraggable(  "#" + object[ 'id' ] );
-	makeResizeable( "#" + object[ 'id' ] );	
-	
-	} catch( e ) { console.log( "Error Add Image: " + e ); }
-	
-} // END Function addImage
-
-
 // Save the MoodBoard to the WordPress Database; This function is called from saveCanvas()
-// Last change: 2014.12.09
+// Last change: 2014.12.20
 function saveMoodBoard( wownonce )
 {
 	var jQ = jQuery;
 
-	var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()
-	var canvas = {};
+	// Get all objects on this Moodboard
+	var Moodboard = jQ( "#canvas" );
+	var group     = Moodboard.find( 'object' ); // find is faster() than children()
+	var canvas    = {};
 		
 	// Prepare all Objects to be saved correctly
 	jQ( group ).each( function( i ) 
 	{
-		var object            = {}; // This is the object to be saved	
+		// Create the object to be saved
+		var object            = {};	
 		object[ 'id' ]        = jQ( this ).attr( 'id' );
 		object[ 'type' ]      = jQ( this ).attr( 'type' );
 		object[ 'top' ]       = jQ( this ).css( 'top' );
@@ -484,6 +515,7 @@ function saveMoodBoard( wownonce )
 		object[ 'height' ]    = parseInt( jQ( this ).css( 'height' ), 10 );
 		object[ 'thumbnail' ] = jQ( this ).attr( 'thumbnail' );
 		object[ 'zindex' ]    = jQ( this ).zIndex();
+				
 				
 		// Prepare the differences per objecttype
 		switch ( object[ 'type' ] ) 
@@ -496,39 +528,45 @@ function saveMoodBoard( wownonce )
 				
 			case "uploaded#image":
 			case "google#image":
-				var image = jQ( "#" + object[ 'id' ] ).find( "img" ).first();
+				var image           = jQ( "#" + object[ 'id' ] ).find( "img" ).first();
 				object[ 'content' ] = image.attr( "src" );
 				object[ 'caption' ] = image.attr( "title" );
 				break;	
 			
 			default:	
-				break;
 		}
-		canvas[ i ] = object;
-	});
 		
-	// Send the MoodBoard to WordPress AJAX
+		canvas[ i ] = object;
+	} );
+
+		
+	// Send the MoodBoard to WordPress backend with AJAX call
 	jQ.post(
 		ajaxurl,
     	{
-	        action : 'savecanvas',
-			security : wownonce,
-			postid : postid,
-			canvas: canvas,
-			width: jQ( "#canvas" ).width(),
-			height: jQ( "#canvas" ).height()
+	        action    : 'savecanvas',
+			security  : wownonce,
+			postid    : postid,
+			canvas    : canvas,
+			width     : Moodboard.width(),
+			height    : Moodboard.height(),
+			bgimage   : Moodboard.css( "background-image" ),
+			bgcontain : Moodboard.css( "background-size" ),
+			bgrepeat  : Moodboard.css( "background-repeat" ),
 	    },
     	
 		function( response ) 
 		{
-			try {
+			try 
+			{
 				var savedmoodboard = JSON.parse( response );
+				
 			} catch ( e ) { console.log( "Error Parsing Moodboard save-results from Wordpress (check savecanvas function): " + e ); }
 			
-			// Show alert if Moodboard could not be saved because user not logged in anymore
+			// Show alert if Moodboard could not be saved ( mostly occurs because user not logged in anymore / session expired )
 			if ( !savedmoodboard.success ) 
 			{
-				alert( "Save Error: Are you Logged in?" );
+				alert( "Saving Moodboard Error: Are you Logged in?" );
 				location.reload();
 			}
 		}
@@ -536,109 +574,100 @@ function saveMoodBoard( wownonce )
 } // END Function saveMoodBoard
 
 
-// Make a element on the Moodboard Draggable
-// Last change: 2014.12.09
-// Input: id for the object that will be made draggable
-// Output:  true if object exists and has dragging overlay: boolean
-function makeDraggable( id ) 
-{		
-	var jQ = jQuery; // Local cache for jQuery
-			
-	// Setup the Canvas and object
-	var canvasOffset = jQ( "#canvas" ).offset();
-	var offsetX      = canvasOffset.left;
-	var offsetY      = canvasOffset.top;
-	var object       = jQ( id );
-	var overlayid    = object.find( ".dragging-overlay" );
-						
-	// Setup the drag object
-	overlayid.draggable({
-		appendTo: 	"body",
-		iframeFix: 	true,
-		cursor: 	'move',
-		revert: 	"invalid",
-		stack: 		".dragging-overlay",
-		zIndex: 	500000,
-
-		drag: function( event, ui ) 
-		{
-       		object.css( 'left', Math.round( ui.offset.left - offsetX ) ).css( 'top', Math.round( ui.offset.top - offsetY ) ).css( 'z-index',10000000 );
-       	},
-
-		stop: function( event, ui ) 
-		{
-			// Save the changed Object to DB
-			object.css( 'z-index', overlayid.zIndex() );
-			saveCanvas( wownonce );
-		}
-	});
-						
-} // END makeDraggable
-
-
-// Make a element on the Moodboard Resizeable
-// Last change: 2014.12.09
-// Input: id for the object that has will be made rersizeable
-// Output:  true if object exists and has dragging overlay: boolean
-function makeResizeable( id ) 
-{		
-	var jQ = jQuery; // Local cache for jQuery
-			
-	// Setup the Canvas and object
-	var canvasOffset = jQ( "#canvas" ).offset();
-	var object       = jQ( id );
-	var $overlayid   = object.find( ".dragging-overlay" );
+// Add a Image to the Moodboard
+// Last change: 2014.12.20
+function addImage( image, objectscale ) 
+{
+	try {
+		
+	var jQ     = jQuery; // Local cached version for jQuery
+	var top    = image[ 'top' ]    * objectscale;
+	var left   = image[ 'left' ]   * objectscale;
+	var width  = image[ 'width' ]  * objectscale;
+	var height = image[ 'height' ] * objectscale;
+		
+	var NewObject = jQ( '<object></object>', 
+	{
+		"id": image[ 'id' ],
+		"class": "image-border",
+		"style": 'top:' + top + 'px; left:' + left +'px; z-index:' + image[ 'zindex' ] + '; background-image: url(' + image[ 'thumbnail' ] + '); background-size: contain;',
+		"type": image[ 'type' ],
+		"width": width,
+		"height": height,
+		"thumbnail": image[ 'thumbnail' ],
+	} ).append( jQ( '<img/>', 
+	{
+		"src": image[ 'content' ],
+		"title": image[ 'caption' ],
+		"alt": image[ 'caption' ],
+		"width": width,
+		"height": height,
+		"style": 'width: 100%; height:100%;',
+	} ) ).append( jQ( "<div></div>",
+	{
+		"class": "dragging-overlay overlay",
+		"id": "overlay" + image[ 'id' ],
+		"style": 'z-index:' + image[ 'zindex' ] + ';'
+	} ) );
 	
-	// Create compensation for padding during resize
-	var widthcompensation  = Math.round( object.width()  - $overlayid.width() );
-	var heightcompensation = Math.round( object.height() - $overlayid.height() );
 	
-	var $resizeobject = $overlayid.resizable( 
-	{ 
-		aspectRatio: true,
-		handles: "se",
-		maxWidth: 1000,
-		minWidth: 150,
-		resize: function( event, ui ) 
-		{
-			clearTimeout( window.resizeID ); // Clear the event for the window resize to prevent reload of the moodboard
-			
-			var width  = Math.round( ui.size.width ) + widthcompensation;
-			var height = Math.round( ui.size.height ) + heightcompensation;
-			object.css( 'width', width + "px" ).css( 'height', height + "px" );
-		},
-		stop: function( event, ui ) 
-		{
-			saveCanvas( wownonce );	
-		}
-	});
-} // END makeResizeable
+	// Add this image to the Moodboard
+	jQ( '#canvas' ).append( NewObject );
+	jQ( "#overlay" + image[ 'id' ] ).append( jQ( "<div></div>",
+	{
+		"class": "wow-caption",
+		"id": "caption" + image[ 'id' ],
+	} ).text( image[ 'caption' ] ) );
+	
+	
+	// Make the newly added object draggable	
+	makeDraggable(  "#" + image[ 'id' ] );
+	makeResizeable( "#" + image[ 'id' ] );	
+	
+	} catch( e ) { console.log( "Error Add Image: " + e ); }
+	
+} // END Function addImage
 
 
 // Brings an element to the front of a stack
-// Last change: 2014.08.28
-function bringFront( elem, stack )
+// Last change: 2014.12.18
+function bringtoFront( element, stack )
 {
 	var jQ = jQuery;
 	var index_highest = getHighestZindex( stack )
-     
-    if( jQ( elem ) == undefined || Number( jQ( elem ).css( "zIndex" ) ) == index_highest ) return;
-    
-	jQ( elem ).css( { 'zIndex' : index_highest + 1 } );
-	jQ( elem ).parent( 'object' ).css( { 'zIndex' : index_highest + 1 } );
-} // END bringFront
+
+	// Either this element does not exist, or it is already on top of the stack 
+    if( element == undefined || element.css( "zIndex" ) == index_highest ) 
+	{	
+		return false;
+	}
+    else
+	{
+		element.css( { 'zIndex' : index_highest + 1 } );
+		element.parent( 'object' ).css( { 'zIndex' : index_highest + 1 } );
+	
+		if ( edit === true ) 
+		{
+			// Save the Moodboard because this object is now on the front of the stack 
+			saveCanvas( wownonce );		
+		}
+		
+		return true;
+	}
+} // END bringtoFront
 
 
 // Returns the Highest zIndex used in a stack
 // Last change: 2014.08.28
 function getHighestZindex( stack ) 
 {
-	var jQ = jQuery;
-	var group = jQ( stack );
+	var jQ            = jQuery;
+	var group         = jQ( stack );
 	var index_highest = 0; 
 
 	// Get the currently highest z-index
-	jQ( group ).each( function() {
+	jQ( group ).each( function() 
+	{
     	var index_current = Number( jQ( this ).css( "zIndex" ) );
 	 	
 		// Set all the Objects to the same zIndex as the overlays 
@@ -688,54 +717,39 @@ function googleApiClientReady()
 // Last change: 2014.12.09
 function youtubesearch() 
 {
-	var jQ = jQuery;
-	
-	jQ( document ).ready( function( $ ) 
+	// Setup the Search Query
+	var jQ      = jQuery;
+	var request = gapi.client.youtube.search.list(
 	{
-		var q = jQ( '#youtubequery' ).val();
-		var request = gapi.client.youtube.search.list(
-		{
-			q: q,
-			part: 'snippet',
-			maxResults: YTmaxResults,
-			safeSearch: "moderate",
-			type: "video",
-			videoEmbeddable: true,
-		});
+		q               : jQ( '#youtubequery' ).val(),
+		part            : 'snippet',
+		maxResults      : YTmaxResults,
+		safeSearch      : "none",
+		type            : "video",
+		videoEmbeddable : true,
+	});
 
-		request.execute( function( response ) {
+	// Execute the Search Query
+	request.execute( function( response ) 
+	{
+		// Grab our content div, show clear results button.
+		jQ( "#clearsearchresults" ).show();	
+		var i = response.items.length -1;
 			
-			// Grab our content div, show clear results button.
-			jQ( "#clearsearchresults" ).show();	
-         	var contentDiv = document.getElementById( 'canvasimages' );
-			
-			var i = response.items.length -1;
-			
-			// Since we prepend the results we go through the array in reverse order (and its faster)
-			do {		
-					
-            	var imgContainer = document.createElement( 'div' );
-				var newImg       = document.createElement( 'img' );
-				var uniqueid     = response.items[ i ].id.videoId.hashCode();
-				response.items[ i ].snippet.thumbnails.default.url = window.wowproxyurl + response.items[ i ].snippet.thumbnails.default.url;
-				
-				newImg.id    = "imageresult" + uniqueid;	
-				newImg.title = "YouTube: " + response.items[ i ].snippet.title;
-				newImg.src   = response.items[ i ].snippet.thumbnails.default.url;
-				newImg.setAttribute( 'width', 93 );
-				newImg.setAttribute( 'height', 70 );
-					
-				imgContainer.appendChild( newImg );
-				imgContainer.className = "scroll-content-item";
-				
-				contentDiv.insertBefore( imgContainer, contentDiv.firstChild );						
-				jQ( "#imageresult" + uniqueid ).css( 'width','93px' ).css( 'height','70px' );
-				var activateDom = jQ( "#imageresult" + uniqueid ).html(); // Somehow the image isn't directly available in the DOM
+		do 
+		{		
+			response.items[ i ].type = response.items[ i ].id.kind;
+			response.items[ i ].snippet.thumbnails.default.url = window.wowproxyurl + response.items[ i ].snippet.thumbnails.default.url;
 
-				response.items[ i ].type = response.items[ i ].id.kind;
-				setDraggable( "#imageresult" + uniqueid, response.items[ i ] );
-
-			} while ( i-- );
+			var uniqueid = response.items[ i ].id.videoId.hashCode();
+			var caption  = response.items[ i ].snippet.title;
+			var url      = response.items[ i ].snippet.thumbnails.default.url
+			var width    = 93;
+			var payload  = response.items[ i ];
+			
+			CreateSearchresultThumbnail( uniqueid, caption, url, width, payload );		
+			
+		} while ( i-- );
 			
 			//init scrollbar size
 			sizeScrollbar();
@@ -743,9 +757,38 @@ function youtubesearch()
 			resetValue();
 		
 		});
-	});
 }
 // END of YouTube Search Functions
+
+// Create a thumbnail with Payload to be added to the search results
+// Last change: 2014.12.20
+function CreateSearchresultThumbnail( uniqueid, caption, url, width, payload )
+{	
+	var jQ      = jQuery;
+	var thumbID = "searchresult" + uniqueid;
+	
+	// Only add this thumbnail if it isn't beeing shown on the resultsbar already
+	if ( ! jQ( "#" + thumbID ).length )
+	{
+		// Create Thumbnail
+		jQ( '<img>', {
+			id: thumbID,
+			title: caption,
+			src: url,
+			width: width,
+			height: 70,
+		} ).appendTo( 
+
+		// Create Imagecontainer
+		jQ( '<div/>', 
+		{
+    		id: "scroll" + uniqueid,
+			class: "scroll-content-item",
+		} ).prependTo( '#canvasimages' ) );
+
+		setDraggable( "#" + thumbID , payload );
+	}
+}
 
 
 // Set Scrollbar for imageresults
@@ -755,11 +798,14 @@ function CreateScrollbar()
 	var jQ = jQuery; // Local cached version for jQuery
 	 
 	//scrollpane parts
-	var scrollPane = jQ( ".scroll-pane" ), scrollContent = jQ( ".scroll-content" );
+	var scrollPane    = jQ( ".scroll-pane" );
+	var scrollContent = jQ( ".scroll-content" );
 	
 	//build slider
-	var scrollbar = jQ( ".scroll-bar" ).slider( {
-		slide: function( event, ui ) {
+	var scrollbar = jQ( ".scroll-bar" ).slider( 
+	{
+		slide: function( event, ui ) 
+		{
 			if ( scrollContent.width() > scrollPane.width() ) {
 				scrollContent.css( "margin-left", Math.round(
 					ui.value / 100 * ( scrollPane.width() - scrollContent.width() )
@@ -768,7 +814,7 @@ function CreateScrollbar()
 				scrollContent.css( "margin-left", 0 );
 			} 
 		},
-		animate: "fast",
+		animate: "slow",
 		value: 0,
 		max: 100,
 		min: 0,
@@ -798,21 +844,22 @@ function sizeScrollbar()
 	 var jQ = jQuery; // Local cached version for jQuery
 	 
 	//scrollpane parts
-	var scrollPane = jQ( ".scroll-pane" ), scrollContent = jQ( ".scroll-content" );
-	var scrollbar = jQ( ".scroll-bar" );
-	var handleHelper = scrollbar.find( ".ui-slider-handle" );
+	var scrollPane    = jQ( ".scroll-pane" );
+	var scrollContent = jQ( ".scroll-content" );
+	var scrollbar     = jQ( ".scroll-bar" );
+	var handleHelper  = scrollbar.find( ".ui-slider-handle" );
 	
-	var handleSize = Math.round( scrollPane.width() / 5 );
-	scrollbar.find( ".ui-slider-handle" ).css({
+	var handleSize    = Math.round( scrollPane.width() / 5 );
+	scrollbar.find( ".ui-slider-handle" ).css( {
 		width: handleSize,
 		"margin-left": -handleSize / 2
-	});
+	} );
 	
 	// Reset width of element with the size of the current image and margin of 20px
 	var width = 0;
 	jQ( ".scroll-content-item" ).each(function() {
 		width += Math.round( jQ( this ).outerWidth( true ) )
-	});
+	} );
 
 	if ( width <= scrollPane.parent().width() ) {
 		scrollContent.width( "100%" );
@@ -821,6 +868,10 @@ function sizeScrollbar()
 		scrollContent.width( width );
 		scrollbar.show();
 	}
+	
+	// Set the offset for the Moodboard
+	ResetOffsetWindow();
+
 } // END function sizeScrollbar
 
 
@@ -831,13 +882,14 @@ function resetValue()
 	 var jQ = jQuery; // Local cached version for jQuery
 	 
 	//scrollpane parts
-	var scrollPane = jQ( ".scroll-pane" ), scrollContent = jQ( ".scroll-content" );
-	var scrollbar = jQ( ".scroll-bar" );
+	var scrollPane    = jQ( ".scroll-pane" ); 
+	var scrollContent = jQ( ".scroll-content" );
+	var scrollbar     = jQ( ".scroll-bar" );
 	
-	var remainder = scrollPane.width() - scrollContent.width();
-	var leftVal = 	scrollContent.css( "margin-left" ) === "auto" ? 0 :
-					parseInt( scrollContent.css( "margin-left" ), 10 );
-	var percentage = Math.round( leftVal / remainder * 100 );
+	var remainder     = scrollPane.width() - scrollContent.width();
+	var leftVal       = scrollContent.css( "margin-left" ) === "auto" ? 0 :
+					   		parseInt( scrollContent.css( "margin-left" ), 10 );
+	var percentage    = Math.round( leftVal / remainder * 100 );
 	scrollbar.slider( "value", percentage );
 } // END function resetValue
 
@@ -849,12 +901,14 @@ function reflowContent()
 	 var jQ = jQuery; // Local cached version for jQuery
 	 
 	//scrollpane parts
-	var scrollPane = jQ( ".scroll-pane" ), scrollContent = jQ( ".scroll-content" );
-	var scrollbar = jQ( ".scroll-bar" )
+	var scrollPane    = jQ( ".scroll-pane" );
+	var scrollContent = jQ( ".scroll-content" );
+	var scrollbar     = jQ( ".scroll-bar" );
 	
-	var showing = scrollContent.width() + parseInt( scrollContent.css( "margin-left" ), 10 );
-	var gap = scrollPane.width() - showing;
-	if ( gap > 0 ) {
+	var showing       = scrollContent.width() + parseInt( scrollContent.css( "margin-left" ), 10 );
+	var gap           = scrollPane.width() - showing;
+	if ( gap > 0 ) 
+	{
 		scrollContent.css( "margin-left", parseInt( scrollContent.css( "margin-left" ), 10 ) + gap );
 	}
 } // END function reflowContent
@@ -871,4 +925,197 @@ function resetImageResults()
 	jQ( ".scroll-content" ).width( "100%" );
 	jQ( ".scroll-bar" ).hide();	
 	jQ( "#clearsearchresults" ).hide();	
+	
+	// Set the offset for the Moodboard
+	ResetOffsetWindow();
+	
 } // END function resetImageResults
+
+
+// Reset the window.offset variables
+// Last change: 2014.12.19
+function ResetOffsetWindow()
+{
+	var canvasOffset = jQuery( "#canvas" ).offset();
+	window.offsetX   = canvasOffset.left;
+	window.offsetY   = canvasOffset.top;
+}
+
+
+// Load Editmode
+// Last change: 2014.12.18
+function loadEditMode()
+{
+	var jQ = jQuery;
+
+	// Configure Editmode switch
+	jQ( "#switcheditmode" ).change( function() 
+	{
+		switcheditmode();
+	} );
+
+	// Activate Tabs with jQueryui
+	jQ( "#wowtabs" ).tabs();
+	jQ( "#wow-edit-panel" ).show("slow");
+	
+	// Activate the Switch edit mode button
+	jQ( "#editmode" ).buttonset().show();
+}
+
+
+// Switch the Edit mode of the Moodboard so you can see it as the visitors will see it
+// Last change: 2014.12.18
+function switcheditmode()
+{
+	var jQ = jQuery;
+	
+	if ( jQ( "#switcheditmode" ).is( ':checked' ) )
+	{
+		jQ( "#wow-edit-panel" ).hide("slow");
+		jQ( "#canvas" ).removeClass( 'woweditcanvas' ).addClass( 'wowcanvas' ).undelegate( 'object', "mouseenter" ).delegate( 'object', 
+		{ 
+			// Move the object in the stack to be on top of the Overlay-layer so we can actually click on the YouTube Videos etc
+			mouseenter: function () 
+			{ 
+				bringtoFront( jQ( this ), '.dragging-overlay' ); 
+				showCaption( jQ( this ) );
+			}
+		} );
+		
+		var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()	
+		jQ( group ).each( function() 
+		{
+			jQ( this ).find( ".dragging-overlay" ).resizable( "disable" );
+		} );
+	}
+	else
+	{
+		jQ( "#wow-edit-panel" ).show("slow");
+		jQ( "#canvas" ).removeClass( 'wowcanvas' ).addClass( 'woweditcanvas' ).undelegate( 'object', "mouseenter" ).delegate( 'object', 
+		{ 
+			mouseenter: function () 
+			{
+				// Show a Delete Button
+				ShowDeleteButton( jQ( this ) );
+				showCaption( jQ( this ) );
+			} 
+		} );
+
+		var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()	
+		jQ( group ).each( function() 
+		{
+			jQ( this ).find( ".dragging-overlay" ).resizable( "enable" );
+		} );			
+	}
+	
+	// Reload the Canvas
+	doneResizing() ;
+}
+
+
+// Show/hide a delete button on an object
+// Last change: 2014.12.19
+function ShowDeleteButton( object )
+{
+	var zIndex    = object.find( '.dragging-overlay' ).zIndex() + 5;
+	var deleteBtn = '<p class="deleteBtn" title="Delete" style=";top:0px;left:0px; z-index:' + zIndex + '"><i class="fa fa-trash-o"></i></p>';
+	object.append( deleteBtn );	
+}
+function RemoveDeleteButton( object )
+{
+	object.find( '.deleteBtn' ).remove();
+}
+
+
+// Show/Hide the caption/edit caption Layer on an Image
+// Last change: 2014.12.19
+function showCaption( imageOverlayer )
+{
+	// Only show this when we actually have a caption
+	if ( imageOverlayer.parent().find( 'img' ).length && imageOverlayer.find( '.wow-caption' ).text().length ) 
+	{
+		imageOverlayer.find( '.wow-caption' ).show();
+	}
+}
+function hideCaption( imageOverlayer )
+{
+	imageOverlayer.find( '.wow-caption' ).hide();
+}
+function showCaptionEdit( imageOverlayer )
+{ 
+	if ( imageOverlayer.parent().find( 'img' ).length && !imageOverlayer.find( '.wow-captionedit' ).length )
+	{
+		imageOverlayer.append( 
+			jQuery( "<input type='text' class='wow-captionedit'></input>" ).val( imageOverlayer.find( '.wow-caption' ).text())
+		); 
+	}
+	imageOverlayer.find( '.wow-caption' ).hide();
+}
+function hideCaptionEdit( imageOverlayer )
+{
+	imageOverlayer.find( '.wow-captionedit' ).remove();
+}
+
+
+// Save Caption
+// Last change: 2014.12.19
+var saveCaptionTimer;
+function saveCaption( moodBoardObject )
+{
+	clearTimeout( saveCaptionTimer );
+	saveCaptionTimer = setTimeout( function() 
+	{
+		var caption     = moodBoardObject.closest( 'object' ).find( 'img' );
+		var captiontext = moodBoardObject.val();
+	
+		caption.attr( 'title', captiontext ).attr( 'alt', captiontext );
+		moodBoardObject.parent().find( '.wow-caption' ).text( captiontext );
+		saveCanvas( wownonce );
+	}, 200, moodBoardObject );
+}
+
+
+// Delete an object from the moodboard
+// Last change 2014.12.19
+function DeleteObject( object )
+{
+	object.remove();
+	saveCanvas( wownonce );
+}
+
+
+// Add Objects to the Moodboard
+// Last change 2014.12.19
+function addObjecttoMoodboard( moodboardContentItem, objectscale )
+{
+	switch ( moodboardContentItem.type ) 
+	{
+		// Add a YouTube Video
+		case "youtube#video":
+			if (typeof addYoutubeVideo == 'function') 
+			{ 
+				addYoutubeVideo( moodboardContentItem, objectscale );
+			}
+			break;
+							
+		// Add an Image
+		case "uploaded#image":
+		case "google#image":
+			if (typeof addImage == 'function') 
+			{ 
+				addImage( moodboardContentItem, objectscale );
+			}
+			break;
+						
+		// Add a Spotify Music Album
+		case "spotify#album":
+			if (typeof addSpotifyAlbum == 'function') 
+			{ 
+				addSpotifyAlbum( moodboardContentItem, objectscale );
+			}
+			break;
+							
+		// Discard anything else	
+		default:
+	}
+}

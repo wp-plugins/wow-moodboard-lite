@@ -53,6 +53,10 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 
 == Changelog ==
 
+= 1.0.4 =
+* jQuery and javascript performance updates
+* Show/Hide 'edit-mode' of Moodboards for Admin
+
 = 1.0.3 =
 * Prevent Loading Moodboards if current location is not is_singular() to prevent trying to load more than 1 moodboard;
 

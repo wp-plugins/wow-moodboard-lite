@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.0.2 [ 2014.12.14 ]
+Version: 1.0.4 [ 2014.12.19 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -94,7 +94,7 @@ class WoW_MoodBoard
 		wp_enqueue_style( 	'wowmoodboard-styles', 
 							plugins_url( 'assets/css/wowmoodboard.css', __FILE__ ), 
 							array(), 
-							'1.0.2' 
+							'1.0.4' 
 		);
 		
 		wp_enqueue_style( 	'font-awesome', 
@@ -143,7 +143,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0' 
+							'1.0.4' 
 		);
 
 		wp_enqueue_script( 'wowmoodboard', 
@@ -159,7 +159,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.2', 
+							'1.0.4', 
 							true 
 		);		
 		
@@ -167,7 +167,7 @@ class WoW_MoodBoard
 							plugins_url( 'assets/js/wow-moodboard-lite.js', __FILE__ ), 
 							array( 	'wowmoodboard', 
 							), 
-							'1.0', 
+							'1.0.4', 
 							true 
 		);
 		
@@ -193,14 +193,14 @@ class WoW_MoodBoard
 								array( 	'googlejsapi', 
 										'jquery-ui-core' 
 								), 
-								'1.0' 
+								'1.0.4' 
 			);
 
 			wp_enqueue_script( 	'wowwpmedia', 
 								plugins_url( 'assets/js/wow-wpmedia.js', __FILE__ ), 
 								array( 	'wowmoodboard', 
 								), 
-								'1.0', 
+								'1.0.4', 
 								true 
 			);
 		}
@@ -229,7 +229,8 @@ class WoW_MoodBoard
 		if ( get_post_status( $_POST['postid']) == "publish" || WoW_MoodBoard::checkMoodboardEdit( $_POST['postid'] ) ) 
 		{
 			$content    = get_post_meta( $_POST['postid'], "moodboard", true);
-			$dimentions = get_post_meta( $_POST['postid'], "dimentions", true);
+			$dimentions = get_post_meta( $_POST['postid'], "wowdimentions", true);
+			$background = get_post_meta( $_POST['postid'], "wowbackground", true);
 		}	
 		else
 		{
@@ -244,9 +245,12 @@ class WoW_MoodBoard
 		$moodboardcontent[ "edit" ] 		= WoW_MoodBoard::checkMoodboardEdit( $_POST['postid'] );
 		$moodboardcontent[ 'header' ] 		= $moodboardcontent["edit"] ? translate('How do I start?') : false;
 		$moodboardcontent[ 'instructions' ]	= $moodboardcontent["edit"] ? translate('Place several objects of your interests here.<ol><li>Enter your Search (for instance a Youtube video) or Upload a photo directly from your computer.</li><li>Drag the object from the grey bar to this Moodboard.</li></ol>') : false;
-		$moodboardcontent[ "content" ] 		= isset( $content ) ? $content : false;
-		$moodboardcontent[ "width" ]		= isset( $dimentions['width'] ) ? $dimentions['width'] : false;
-		$moodboardcontent[ "height" ]		= isset( $dimentions['height'] ) ? $dimentions['height'] : false;
+		$moodboardcontent[ "content" ] 		= isset( $content )               ? $content               : false;
+		$moodboardcontent[ "width" ]		= isset( $dimentions['width'] )   ? $dimentions['width']   : false;
+		$moodboardcontent[ "height" ]		= isset( $dimentions['height'] )  ? $dimentions['height']  : false;
+		$moodboardcontent['bgimage']		= isset( $background['image'] )   ? $background['image']   : "none";
+		$moodboardcontent['bgcontain']		= isset( $background['contain'] ) ? $background['contain'] : "inherit";
+		$moodboardcontent['bgrepeat']		= isset( $background['repeat'] )  ? $background['repeat']  : "round";
 	
 		// Push the moodboard
 		echo json_encode($moodboardcontent); 
@@ -307,13 +311,22 @@ class WoW_MoodBoard
 			$dimentions = array();
 			$dimentions['width']  = isset( $_POST['width'] ) ? $_POST['width'] : 0;
 			$dimentions['height'] = isset( $_POST['height'] ) ? $_POST['height'] : 0;
+			
+			// Store Background
+			$background = array();
+			$background['image']   = isset( $_POST['bgimage'] ) ? $_POST['bgimage'] : "none";
+			$background['contain'] = isset( $_POST['bgcontain'] ) ? $_POST['bgcontain'] : "inherit";
+			$background['repeat']  = isset( $_POST['bgrepeat'] ) ? $_POST['bgrepeat'] : "round";
 	
 			// Save to Database
 			if (!empty( $canvas ) )
 			{
-				$response['dimentions'] = update_post_meta( $_POST['postid'], "dimentions", $dimentions );
-				$response['canvas']     = update_post_meta( $_POST['postid'], "moodboard", $canvas );	
+				$response['canvas'] = update_post_meta( $_POST['postid'], "moodboard", $canvas );	
 			}
+
+			$response['dimentions'] = update_post_meta( $_POST['postid'], "wowdimentions", $dimentions );
+			$response['background'] = update_post_meta( $_POST['postid'], "wowbackground", $background );
+
 			$response['success'] = true;
 		}
  
@@ -321,7 +334,6 @@ class WoW_MoodBoard
 		{
 			//Empty Moodboard
 			$response['success'] = "empty";
-			delete_post_meta( $_POST['postid'], "dimentions" );
 			delete_post_meta( $_POST['postid'], "moodboard" );
 		}
 		
@@ -334,8 +346,60 @@ class WoW_MoodBoard
 	// Upgrade a MoodBoard to the latest version
 	public static function upgradeMoodBoards( $storedversion )
 	{
-		// Nothing to do yet, this is to upgrade to Pro (in the Pro Child Class) or to upgrade to future versions of the DB
-		return true;	
+		$success = WoW_MoodBoard::UpdateAllMoodBoards( WOWMOODBOARD );
+		return $success;	
+	}
+	
+	
+	// Update All Moodboards
+	public static function UpdateAllMoodBoards( $version )
+	{
+		// Get all posts that have a Moodboard stored
+		$moodboardschanged = 0;
+		$moodboards = WoW_MoodBoard::GetMoodboardsDB();
+				
+		foreach( $moodboards as $postId) 
+		{
+			switch ( $version ) 
+			{
+				case "1.0.4":
+					// Read the MoodBoard dimentions from the Post options
+					$dimentions = get_post_meta( $postId, "dimentions", true );
+
+					// Write the updated dimentions to the post
+					if ( !empty( $dimentions ) )
+					{
+						update_post_meta( $postId, "wowdimentions", $updateMoodboards );
+						$moodboardschanged++;
+					}
+					break;
+				
+				default:
+			}
+			
+		}
+		
+		return $moodboardschanged;
+	}
+	
+	// Get all Moodboards from the DB
+	public static function GetMoodboardsDB()
+	{
+		global $wpdb;
+		
+		$meta_key   = 'moodboard';
+		$moodboards = $wpdb->get_col( 
+						$wpdb->prepare( 
+										"
+											SELECT post_id 
+											FROM $wpdb->postmeta 
+											WHERE meta_key = %s
+										", 
+										$meta_key
+						)
+		);
+		
+		return $moodboards;
 	}
 	
 } // Closing Class WoW_MoodBoard

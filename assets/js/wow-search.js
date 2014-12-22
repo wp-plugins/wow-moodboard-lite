@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.1 [2014.12.10]
+   Version: 1.0.4 [ 2014.12.20 ]
    Author: Marc Schot
    Description: Load and execute the Google Image search
    Status: Production
@@ -29,34 +29,20 @@ function searchComplete()
 		var i             = results.length -1;
 		
 		// Since we prepend the results we go through the array in reverse order (and its faster)
-		do {		
-					
-            var imgContainer = document.createElement( 'div' );
-			var newImg       = document.createElement( 'img' );
-				
-			var uniqueid     = results[ i ].unescapedUrl.hashCode();
-			var width		 = Math.round(  results[ i ].tbWidth / results[ i ].tbHeight * 70  );
-			
-			// Set the proxy for the image
-			
+		do 
+		{		
 			results[ i ].unescapedUrl = window.wowproxyurl + results[ i ].unescapedUrl.replace( /&/g, "**" ).replace( /\?/g, "!!" );
 			results[ i ].tbUrl        = window.wowproxyurl + results[ i ].tbUrl;
-			
-			newImg.id    = "imageresult" + uniqueid;	
-			newImg.title = "Google Image: " + results[ i ].title;
-			newImg.src   = results[ i ].tbUrl;
-			newImg.setAttribute( 'width', width );
-			newImg.setAttribute( 'height', 70 );
-					
-			imgContainer.appendChild( newImg );
-			imgContainer.className = "scroll-content-item";
-				
-			contentDiv.insertBefore( imgContainer, contentDiv.firstChild );						
-			jQ( "#imageresult" + uniqueid ).css( 'width', width + 'px' ).css( 'height','70px' );
-			var activateDom = jQ( "#imageresult" + uniqueid ).html(); // Somehow the image isn't directly available in the DOM
+			results[ i ].url		  = window.wowproxyurl + results[ i ].url;
+			results[ i ].type         = "google#image";
 
-			results[ i ].type = "google#image";
-			setDraggable( "#imageresult" + uniqueid, results[ i ] );
+			var uniqueid = results[ i ].unescapedUrl.hashCode();
+			var caption  = results[ i ].title;
+			var url      = results[ i ].tbUrl
+			var width    = results[ i ].tbWidth / results[ i ].tbHeight * 70;
+			var payload  = results[ i ];
+			
+			CreateSearchresultThumbnail( uniqueid, caption, url, width, payload );	
 
 		} while ( i-- );
 		
@@ -75,7 +61,6 @@ function ImageSearchOnLoad()
 
     imageSearch.setSearchCompleteCallback( this, searchComplete, null );
 	imageSearch.setResultSetSize( 8 );
-	imageSearch.setRestriction( google.search.ImageSearch.RESTRICT_IMAGESIZE, google.search.ImageSearch.IMAGESIZE_MEDIUM );
 	imageSearch.setRestriction( google.search.ImageSearch.RESTRICT_FILETYPE,  google.search.ImageSearch.FILETYPE_JPG );
 	imageSearch.setRestriction( google.search.Search.RESTRICT_SAFESEARCH,     google.search.Search.SAFESEARCH_MODERATE );
 	imageSearch.setNoHtmlGeneration();

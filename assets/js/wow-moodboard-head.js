@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 2014.12.09
+   Version: 1.0.4 [ 2014.12.19 ]
    Author: Wow New Media
    Description: Setup the WoW MoodBoard JavaScript in the <head> section
    Status: Production
@@ -8,10 +8,9 @@
 */
 
 // Declare General variables
+var windowWidth = jQuery( window ).width();
 var resizeID;
 var SaveMoodboardID;
-var LoadCanvasTimer
-var fullscreen = false;
 var scopes = [
   'https://www.googleapis.com/auth/youtube'
 ]; 
@@ -20,19 +19,7 @@ var scopes = [
 function saveCanvas( wownonce )
 {
 	clearTimeout( SaveMoodboardID );
-	SaveMoodboardID = setTimeout( saveMoodBoard( wownonce ), 100 );	
-}
-
-function loadCanvasTimed ()
-{
-	clearTimeout( LoadCanvasTimer );
-	LoadCanvasTimer = setTimeout( loadCanvas ( window.wownonce, window.postid ), 100 );	
-}
-
-function ResetScrollbarTimed ()
-{
-	clearTimeout( LoadCanvasTimer );
-	LoadCanvasTimer = setTimeout( loadCanvas ( window.wownonce, window.postid ), 100 );	
+	SaveMoodboardID = setTimeout( saveMoodBoard( wownonce ), 500 );	
 }
 
 function wowupload( wpnonce, wowurl, includeurl ) 
@@ -76,4 +63,29 @@ function wowupload( wpnonce, wowurl, includeurl )
         silverlight_xap_url : includeurl + 'js/plupload/plupload.silverlight.xap',
 		
     } );
+}
+
+
+// Create automatic resize
+// Last change: 2014.12.18
+function doneResizing() 
+{
+	var moodBoardwidth = jQuery( "#canvas").width();
+	var screenWidth    = jQuery( window ).width();
+
+	if ( windowWidth != screenWidth && window.mbwidth != moodBoardwidth )
+	{
+	  // Our window resize has affected the Moodboard, so we need to re-calculate the position and scale of the objects and scrollbar
+		// Store new Width
+		window.mbwidth     = moodBoardwidth;
+		window.windowWidth = screenWidth;
+		
+		// Recalculate the scrollbar
+		sizeScrollbar();
+		reflowContent();
+		resetValue();
+		
+		// Resize objects on the MoodBoard
+		loadCanvas ( window.wownonce, window.postid );
+	}
 }
