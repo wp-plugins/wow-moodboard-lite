@@ -18,15 +18,14 @@ With Wow Moodboard you can add a mood board to your posts and pages to visually 
 
 **Pro Version Available**
 
-All functionality of the Lite version +
+All the functionality of Wow moodboard Lite +
 
-- Allow clients to view YouTube videos from your mood boards fullscreen;
-- Scale your mood boards to different screen sizes;
-- Resize your mood boards;
-- Customize the look of your mood boards;
-- Add music to your mood boards with Spotify Album search;
-- Add links to the images on your mood boards;
-- Receive more search results on Google Image and Youtube searches
+- Customize the look of your mood boards with a **custom background**
+- Resize your mood boards to **fit your needs**
+- **Auto-Scale** your mood boards to different screen sizes
+- Add music to your mood boards with **Spotify Album search**
+- Allow your audience to view YouTube videos from your mood boards **fullscreen**
+- Receive **more search results to choose from** when performing Google Image and Youtube searches
 
 More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
 
@@ -50,6 +49,7 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 1. Edit your mood board inline, you can add images and videos, resize them and add captions
 2. A mood board implemented in a page of a webzine
 3. A mood board implemented in a post in the blog of a fashion label
+4. A Wow moodboard Pro with custom background, spotify albums and custom size
 
 == Changelog ==
 
