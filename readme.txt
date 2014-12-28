@@ -1,7 +1,7 @@
 === Wow Moodboard Lite ===
 Contributors: mschot
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
-Tags: mood board, collage, presentation, youtube, images, jquery
+Tags: mood board, collage, presentation, youtube, images, jquery, album, albums, galleries, gallery, image, image album, image captions, image gallery, images, media, media gallery, photo, photo albums, photo gallery, photographer, photography, photos, picture, Picture Gallery, pictures, responsive, responsive galleries, responsive gallery, wordpress gallery plugin, wordpress photo gallery plugin, wordpress responsive gallery, wp gallery, wp gallery plugins, video
 Requires at least: 4.0
 Tested up to: 4.1
 Stable tag: trunk
@@ -15,6 +15,10 @@ A mood board is a type of collage consisting of images, text, and samples of obj
 They may be physical or digital, and can be "extremely effective" presentation tools.
 
 With Wow Moodboard you can add a mood board to your posts and pages to visually illustrate the style you wish to pursue and quickly inform your audience of the overall "feel" (or "flow") of your idea/product/article/writing. In other words you can add a collage of Youtube Video's and Images (both uploaded and Google Image Search) to any post or page (including Woocommerce / Jigoshop products) to add that extra edge to your presentation to make it stand out.
+
+A demonstration:
+
+http://youtu.be/sVA7ZYYQKa0
 
 **Pro Version Available**
 
