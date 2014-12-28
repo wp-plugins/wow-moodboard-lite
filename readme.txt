@@ -18,7 +18,7 @@ With Wow Moodboard you can add a mood board to your posts and pages to visually 
 
 A demonstration:
 
-http://youtu.be/sVA7ZYYQKa0
+https://www.youtube.com/watch?v=sVA7ZYYQKa0
 
 **Pro Version Available**
 
