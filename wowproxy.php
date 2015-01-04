@@ -3,13 +3,13 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: Create a proxy to load remote images so the come from our server (https, caching, etc)
-Version: 1.0.1 [2014.12.10]
+Version: 1.0.5 [2015.01.04]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.
-	Copyright © 2014 Wow New Media
+	Copyright © 2015 Wow New Media
 
 	Wow New Media
 	info@wownmedia.com
@@ -18,6 +18,7 @@ License: GPLv2 or later
 	ALC Spain
 	
 */
+ob_start(); // Prevent any error from sending headers to the browser
 
 // Get the url of the image to be proxied
 $url = ( isset( $_POST[ 'url' ] ) ) ? $_POST[ 'url' ] : ( isset( $_GET[ 'url' ] ) ? $_GET[ 'url' ] : false );
@@ -35,8 +36,11 @@ proxyimages( $url );
 function proxyimages( $url )
 {
 	
-	// Make sure we actually use cUrl on this server
-	if ( function_exists( 'curl_version' ) )
+	// Make sure we actually use cUrl on this server and that we have no open_basedir and safe_mode (PHP < 5.4) set 
+	if ( function_exists( 'curl_version' ) 
+		 && filter_var( ini_get( ‘open_basedir’ ), FILTER_VALIDATE_BOOLEAN ) === false 
+		 && filter_var( ini_get( ‘safe_mode’ ),    FILTER_VALIDATE_BOOLEAN ) === false
+	)
 	{
 		$session = curl_init( $url );
 	
@@ -68,7 +72,7 @@ function proxyimages( $url )
 		exit;
 	}
 	
-	// Seems cUrl is beeing blocked, try a different method
+	// Seems cUrl is beeing blocked or PHP open_basedir or safe_mode is set, try a different method
 	else
 	{
 		$rawImage   = file_get_contents( $url );
@@ -95,6 +99,7 @@ function proxyimages( $url )
 function showImage( $image, $mimetype )
 {
 	// Show the image
+	ob_clean(); // Clear previous buffer that was set to prevent any headers being sent earlier
 	ob_start();
 	header( "Content-Type: " . $mimetype );
 	
@@ -106,4 +111,5 @@ function showImage( $image, $mimetype )
 	
 	echo $image;
 	ob_end_flush();
+	exit;
 }

@@ -59,6 +59,10 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 
 == Changelog ==
 
+= 1.0.5 =
+* Bug resolved: Resizeable objects when not in edit mode
+* Bug resolved: wowproxy errors when using cUrl with PHP open_basedit / safe_mode settings 
+
 = 1.0.4 =
 * jQuery and javascript performance updates
 * Show/Hide 'edit-mode' of Moodboards for Admin

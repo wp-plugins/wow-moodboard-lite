@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite / Pro
-   Version: 1.0.4 [ 2014.12.20 ]
+   Version: 1.0.5 [ 2015.01.04 ]
    Author: Wow New Media
    Description: JavaScript functions used to load and manage the WoW MoodBoard
    Status: Production
@@ -620,9 +620,12 @@ function addImage( image, objectscale )
 	} ).text( image[ 'caption' ] ) );
 	
 	
-	// Make the newly added object draggable	
-	makeDraggable(  "#" + image[ 'id' ] );
-	makeResizeable( "#" + image[ 'id' ] );	
+	// Make the newly added object draggable
+	if( edit === true )
+	{	
+		makeDraggable(  "#" + image[ 'id' ] );
+		makeResizeable( "#" + image[ 'id' ] );	
+	}
 	
 	} catch( e ) { console.log( "Error Add Image: " + e ); }
 	
@@ -668,7 +671,7 @@ function getHighestZindex( stack )
 	// Get the currently highest z-index
 	jQ( group ).each( function() 
 	{
-    	var index_current = Number( jQ( this ).css( "zIndex" ) );
+    	var index_current = Number( jQ( this ).zIndex() );
 	 	
 		// Set all the Objects to the same zIndex as the overlays 
 		jQ( this ).parent().css( { 'zIndex' : index_current } );

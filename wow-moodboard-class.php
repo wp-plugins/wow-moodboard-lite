@@ -159,7 +159,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.4', 
+							'1.0.5', 
 							true 
 		);		
 		
@@ -167,7 +167,7 @@ class WoW_MoodBoard
 							plugins_url( 'assets/js/wow-moodboard-lite.js', __FILE__ ), 
 							array( 	'wowmoodboard', 
 							), 
-							'1.0.4', 
+							'1.0.5', 
 							true 
 		);
 		

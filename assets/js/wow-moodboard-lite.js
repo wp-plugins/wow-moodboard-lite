@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.4 [ 2014.12.22 ]
+   Version: 1.0.5 [ 2014.01.04 ]
    Author: Wow New Media
    Description: JavaScript functions used in WoW MoodBoard Lite
    Status: Production
@@ -36,6 +36,7 @@ function addYoutubeVideo( object, objectscale )
 		"src": "//www.youtube-nocookie.com/embed/" + object[ 'content' ] + "?rel=0&modesbranding=1&showinfo=0",
 		"frameborder": "0",
 		'allowtransparency': true,
+		'allowfullscreen': false,
 		'style':'width:100%;height:100%;background-color:rgba(0,0,0,0);',
 		"sandbox" : "allow-scripts allow-same-origin"
 	})).append(jQ( "<div></div>",
@@ -48,8 +49,11 @@ function addYoutubeVideo( object, objectscale )
 	jQ( '#canvas' ).append( NewObject );
 	
 	// Make the newly added Youtube video draggable	
-	makeDraggable(  "#" + object[ 'id' ] );
-	makeResizeable( "#" + object[ 'id' ] );	
-
+	if( edit === true )
+	{	
+		makeDraggable(  "#" + object[ 'id' ] );
+		makeResizeable( "#" + object[ 'id' ] );	
+	}
+	
 	} catch( e ) { console.log( "Error Add Youtube Video: " + e ); }
 } // END addYoutubeVideo
