@@ -22,8 +22,6 @@ https://www.youtube.com/watch?v=sVA7ZYYQKa0
 
 **Pro Version Available**
 
-Use the introduction coupon **[MOODBOARD](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro 25% Introduction Discount")** to get 25% off on Wow Moodboard Pro ( offer valid till january 7, 2015 ).
-
 All the functionality of Wow moodboard Lite +
 
 - Customize the look of your mood boards with a **custom background**
@@ -32,6 +30,7 @@ All the functionality of Wow moodboard Lite +
 - Add music to your mood boards with **Spotify Album search**
 - Allow your audience to view YouTube videos from your mood boards **fullscreen**
 - Receive **more search results to choose from** when performing Google Image and Youtube searches
+- Add links (URL) to your images
 
 More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
 
