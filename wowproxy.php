@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: Create a proxy to load remote images so the come from our server (https, caching, etc)
-Version: 1.0.5 [2015.01.04]
+Version: 1.0.6 [2015.01.12]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -38,8 +38,8 @@ function proxyimages( $url )
 	
 	// Make sure we actually use cUrl on this server and that we have no open_basedir and safe_mode (PHP < 5.4) set 
 	if ( function_exists( 'curl_version' ) 
-		 && filter_var( ini_get( ‘open_basedir’ ), FILTER_VALIDATE_BOOLEAN ) === false 
-		 && filter_var( ini_get( ‘safe_mode’ ),    FILTER_VALIDATE_BOOLEAN ) === false
+		 && filter_var( ini_get( 'open_basedir' ), FILTER_VALIDATE_BOOLEAN ) === false 
+		 && filter_var( ini_get( 'safe_mode' ),    FILTER_VALIDATE_BOOLEAN ) === false
 	)
 	{
 		$session = curl_init( $url );

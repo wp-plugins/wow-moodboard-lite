@@ -3,13 +3,13 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.0.4 [ 2014.12.19 ]
+Version: 1.0.6 [ 2015.01.12 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.
-	Copyright © 2014 Wow New Media
+	Copyright © 2015 Wow New Media
 
 	Wow New Media
 	info@wownmedia.com
@@ -94,7 +94,7 @@ class WoW_MoodBoard
 		wp_enqueue_style( 	'wowmoodboard-styles', 
 							plugins_url( 'assets/css/wowmoodboard.css', __FILE__ ), 
 							array(), 
-							'1.0.4' 
+							'1.0.6' 
 		);
 		
 		wp_enqueue_style( 	'font-awesome', 
@@ -159,7 +159,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.5', 
+							'1.0.6', 
 							true 
 		);		
 		
@@ -167,7 +167,7 @@ class WoW_MoodBoard
 							plugins_url( 'assets/js/wow-moodboard-lite.js', __FILE__ ), 
 							array( 	'wowmoodboard', 
 							), 
-							'1.0.5', 
+							'1.0.6', 
 							true 
 		);
 		
@@ -303,6 +303,7 @@ class WoW_MoodBoard
 											"caption"	=> sanitize_text_field( esc_html( $object["caption"] ) ),
 											"zindex"	=> absint( $object["zindex"] ),
 											"thumbnail" => sanitize_text_field( $object["thumbnail"] ),
+											"href"		=> sanitize_text_field( $object["href"] ),
 											"sanitized" => true );
 				$canvas[] = $sanitizedobject;	
 			}

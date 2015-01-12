@@ -22,6 +22,8 @@ https://www.youtube.com/watch?v=sVA7ZYYQKa0
 
 **Pro Version Available**
 
+Use the introduction coupon **[MOODBOARD](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro 25% Introduction Discount")** to get 25% off on Wow Moodboard Pro ( offer valid till january 7, 2015 ).
+
 All the functionality of Wow moodboard Lite +
 
 - Customize the look of your mood boards with a **custom background**
@@ -30,7 +32,6 @@ All the functionality of Wow moodboard Lite +
 - Add music to your mood boards with **Spotify Album search**
 - Allow your audience to view YouTube videos from your mood boards **fullscreen**
 - Receive **more search results to choose from** when performing Google Image and Youtube searches
-- Add links (URL) to your images
 
 More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
 
@@ -58,6 +59,10 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 
 == Changelog ==
 
+= 1.0.6 =
+* jQuery and javascript performance updates
+* (Pro) Added option to add link/url to images placed on the Moodboard
+
 = 1.0.5 =
 * Bug resolved: Resizeable objects when not in edit mode
 * Bug resolved: wowproxy errors when using cUrl with PHP open_basedit / safe_mode settings 
@@ -68,6 +73,8 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 
 = 1.0.3 =
 * Prevent Loading Moodboards if current location is not is_singular() to prevent trying to load more than 1 moodboard;
+* (Pro) Added option to add background to Moodboard
+* (Pro) Added option to resize Moodboard
 
 = 1.0.2 =
 * Prevent loading the Wow Moodboard Lite plugin when the Pro version is installed and activated;

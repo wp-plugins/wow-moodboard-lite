@@ -1,11 +1,68 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.5 [ 2014.01.04 ]
+   Version: 1.0.6 [ 2014.01.12 ]
    Author: Wow New Media
    Description: JavaScript functions used in WoW MoodBoard Lite
    Status: Production
    
    Load before </body>
 */
+
+// Add a Image to the Moodboard
+// Last change: 2014.12.20
+function addImage( image, objectscale ) 
+{
+	try {
+		
+	var jQ     = jQuery; // Local cached version for jQuery
+	var top    = image[ 'top' ]    * objectscale;
+	var left   = image[ 'left' ]   * objectscale;
+	var width  = image[ 'width' ]  * objectscale;
+	var height = image[ 'height' ] * objectscale;
+		
+	var NewObject = jQ( '<object></object>', 
+	{
+		"id": image[ 'id' ],
+		"class": "image-border",
+		"style": 'top:' + top + 'px; left:' + left +'px; z-index:' + image[ 'zindex' ] + '; background-image: url(' + image[ 'thumbnail' ] + '); background-size: contain;',
+		"type": image[ 'type' ],
+		"width": width,
+		"height": height,
+		"thumbnail": image[ 'thumbnail' ],
+	} ).append( jQ( '<img/>', 
+	{
+		"src": image[ 'content' ],
+		"title": image[ 'caption' ],
+		"alt": image[ 'caption' ],
+		"width": width,
+		"height": height,
+		"style": 'width: 100%; height:100%;',
+	} ) ).append( jQ( "<div></div>",
+	{
+		"class": "dragging-overlay overlay",
+		"id": "overlay" + image[ 'id' ],
+		"style": 'z-index:' + image[ 'zindex' ] + ';'
+	} ) );
+	
+	
+	// Add this image to the Moodboard
+	jQ( '#canvas' ).append( NewObject );
+	jQ( "#overlay" + image[ 'id' ] ).append( jQ( "<div></div>",
+	{
+		"class": "wow-caption",
+		"id": "caption" + image[ 'id' ],
+	} ).text( image[ 'caption' ] ) );
+	
+	
+	// Make the newly added object draggable
+	if( edit === true )
+	{	
+		makeDraggable(  "#" + image[ 'id' ] );
+		makeResizeable( "#" + image[ 'id' ] );	
+	}
+	
+	} catch( e ) { console.log( "Error Add Image: " + e ); }
+	
+} // END Function addImage
 
 // Add a Youtube Video to the Moodboard
 // Last change: 2014.12.22

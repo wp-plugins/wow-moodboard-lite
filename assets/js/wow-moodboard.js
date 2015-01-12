@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite / Pro
-   Version: 1.0.5 [ 2015.01.04 ]
+   Version: 1.0.6 [ 2015.01.12 ]
    Author: Wow New Media
    Description: JavaScript functions used to load and manage the WoW MoodBoard
    Status: Production
@@ -72,6 +72,25 @@ function initMoodboard ( wownonce, postid )
 						hideCaption( jQ( this ) );
 					} 
 				} );
+				
+				if (  typeof( clickedonImage ) == "function" ) 
+				{
+					Moodboard.delegate( 'img', 
+					{ 
+						click: function()
+						{
+							clickedonImage( jQ( this ) );
+						},
+						
+						mouseover: function()
+						{
+							if ( typeof jQ( this ).attr( "href" ) !== 'undefined' )  
+							{
+								jQ( this ).css( {'cursor': 'pointer'} );
+							}
+						}
+					} );
+				}
 			}
 
 			// Setup a Moodboard that can be edited
@@ -103,10 +122,18 @@ function initMoodboard ( wownonce, postid )
 					click: function() 
 					{ 
 						showCaptionEdit( jQ( this ) );
+						if (  typeof( showURLEdit ) == "function" ) 
+						{
+							showURLEdit( jQ( this ) );
+						}
 					},
 					mouseleave: function() 
 					{
 						hideCaptionEdit( jQ( this ) );
+						if (  typeof( hideURLEdit ) == "function" ) 
+						{
+							hideURLEdit( jQ( this ) );
+						}						
 					}
 				} );				
 				
@@ -116,6 +143,37 @@ function initMoodboard ( wownonce, postid )
 					keyup: function() 
 					{
 						saveCaption( jQ( this ) );
+					}
+				} );
+				
+				// Update the caption when it's changed				
+				Moodboard.delegate( '.wow-urledit', 
+				{ 
+					keyup: function() 
+					{
+						saveURL( jQ( this ) );
+					}
+				} );
+				
+				// Activate the default text in the input fields
+				Moodboard.delegate( '.defaultText',
+				{
+					focusin: function()
+					{ 
+						if ( jQ( this ).val() === jQ( this ).attr( 'title' ) )
+        				{
+            				jQ( this ).removeClass( "defaultTextActive" );
+            				jQ( this ).val( "" );
+        				}
+					},
+					
+					focusout: function()
+					{
+						if ( !jQ( this ).val() )
+        				{
+            				jQ( this ).addClass( "defaultTextActive" );
+            				jQ( this ).val( jQ( this ).attr( 'title' ) );
+        				}	
 					}
 				} );
 				
@@ -367,6 +425,7 @@ function makeResizeable( ObjectID )
 		handles: "all",
 		maxWidth: 1000,
 		minWidth: 150,
+		minHeight: 150,
 		autoHide: false,
 		containment: "#canvas",
 		
@@ -492,7 +551,7 @@ function dragDropDiv( event, ui )
 
 
 // Save the MoodBoard to the WordPress Database; This function is called from saveCanvas()
-// Last change: 2014.12.20
+// Last change: 2015.01.05
 function saveMoodBoard( wownonce )
 {
 	var jQ = jQuery;
@@ -531,6 +590,7 @@ function saveMoodBoard( wownonce )
 				var image           = jQ( "#" + object[ 'id' ] ).find( "img" ).first();
 				object[ 'content' ] = image.attr( "src" );
 				object[ 'caption' ] = image.attr( "title" );
+				object[ 'href' ]    = image.attr( "href" );
 				break;	
 			
 			default:	
@@ -572,64 +632,6 @@ function saveMoodBoard( wownonce )
 		}
 	);
 } // END Function saveMoodBoard
-
-
-// Add a Image to the Moodboard
-// Last change: 2014.12.20
-function addImage( image, objectscale ) 
-{
-	try {
-		
-	var jQ     = jQuery; // Local cached version for jQuery
-	var top    = image[ 'top' ]    * objectscale;
-	var left   = image[ 'left' ]   * objectscale;
-	var width  = image[ 'width' ]  * objectscale;
-	var height = image[ 'height' ] * objectscale;
-		
-	var NewObject = jQ( '<object></object>', 
-	{
-		"id": image[ 'id' ],
-		"class": "image-border",
-		"style": 'top:' + top + 'px; left:' + left +'px; z-index:' + image[ 'zindex' ] + '; background-image: url(' + image[ 'thumbnail' ] + '); background-size: contain;',
-		"type": image[ 'type' ],
-		"width": width,
-		"height": height,
-		"thumbnail": image[ 'thumbnail' ],
-	} ).append( jQ( '<img/>', 
-	{
-		"src": image[ 'content' ],
-		"title": image[ 'caption' ],
-		"alt": image[ 'caption' ],
-		"width": width,
-		"height": height,
-		"style": 'width: 100%; height:100%;',
-	} ) ).append( jQ( "<div></div>",
-	{
-		"class": "dragging-overlay overlay",
-		"id": "overlay" + image[ 'id' ],
-		"style": 'z-index:' + image[ 'zindex' ] + ';'
-	} ) );
-	
-	
-	// Add this image to the Moodboard
-	jQ( '#canvas' ).append( NewObject );
-	jQ( "#overlay" + image[ 'id' ] ).append( jQ( "<div></div>",
-	{
-		"class": "wow-caption",
-		"id": "caption" + image[ 'id' ],
-	} ).text( image[ 'caption' ] ) );
-	
-	
-	// Make the newly added object draggable
-	if( edit === true )
-	{	
-		makeDraggable(  "#" + image[ 'id' ] );
-		makeResizeable( "#" + image[ 'id' ] );	
-	}
-	
-	} catch( e ) { console.log( "Error Add Image: " + e ); }
-	
-} // END Function addImage
 
 
 // Brings an element to the front of a stack
@@ -985,6 +987,26 @@ function switcheditmode()
 			}
 		} );
 		
+
+		if (  typeof( clickedonImage ) == "function" ) 
+		{
+			jQ( "#canvas" ).delegate( 'img', 
+			{ 
+				click: function()
+				{
+					clickedonImage( jQ( this ) );
+				},
+					
+				mouseover: function()
+				{
+					if ( typeof jQ( this ).attr( "href" ) !== 'undefined' )  
+					{
+						jQ( this ).css( {'cursor': 'pointer'} );
+					}
+				}
+			} );
+		}
+		
 		var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()	
 		jQ( group ).each( function() 
 		{
@@ -994,7 +1016,7 @@ function switcheditmode()
 	else
 	{
 		jQ( "#wow-edit-panel" ).show("slow");
-		jQ( "#canvas" ).removeClass( 'wowcanvas' ).addClass( 'woweditcanvas' ).undelegate( 'object', "mouseenter" ).delegate( 'object', 
+		jQ( "#canvas" ).removeClass( 'wowcanvas' ).addClass( 'woweditcanvas' ).undelegate( 'object', "mouseenter" ).undelegate( 'img', "mouseover" ).undelegate( 'img', "click" ).delegate( 'object', 
 		{ 
 			mouseenter: function () 
 			{
@@ -1048,11 +1070,11 @@ function showCaptionEdit( imageOverlayer )
 { 
 	if ( imageOverlayer.parent().find( 'img' ).length && !imageOverlayer.find( '.wow-captionedit' ).length )
 	{
-		imageOverlayer.append( 
-			jQuery( "<input type='text' class='wow-captionedit'></input>" ).val( imageOverlayer.find( '.wow-caption' ).text())
-		); 
+		var presettext  = imageOverlayer.find( '.wow-caption' ).text();
+		var captionedit = jQuery( "<input type='text' class='wow-captionedit defaultText' title='Caption'></input>" ).val( presettext );
+		imageOverlayer.append( captionedit ); 
+		captionedit.trigger( 'focusout' );	
 	}
-	imageOverlayer.find( '.wow-caption' ).hide();
 }
 function hideCaptionEdit( imageOverlayer )
 {
@@ -1068,10 +1090,10 @@ function saveCaption( moodBoardObject )
 	clearTimeout( saveCaptionTimer );
 	saveCaptionTimer = setTimeout( function() 
 	{
-		var caption     = moodBoardObject.closest( 'object' ).find( 'img' );
+		var image       = moodBoardObject.closest( 'object' ).find( 'img' );
 		var captiontext = moodBoardObject.val();
 	
-		caption.attr( 'title', captiontext ).attr( 'alt', captiontext );
+		image.attr( 'title', captiontext ).attr( 'alt', captiontext );
 		moodBoardObject.parent().find( '.wow-caption' ).text( captiontext );
 		saveCanvas( wownonce );
 	}, 200, moodBoardObject );
