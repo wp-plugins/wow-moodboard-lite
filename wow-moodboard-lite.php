@@ -3,10 +3,10 @@
 Plugin Name: WoW Moodboard Lite
 Plugin URI: https://wownmedia.com/wow-moodboard/
 Description: Create a Mood board for your Wordpress pages and posts. Lite version.
-Version: 1.0.6
+Version: 1.0.7
 Author: Wow New Media
 Author URI: https://wownmedia.com
-Last Change: 2015.01.12
+Last Change: 2015.03.16
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.
@@ -25,6 +25,8 @@ function wow_moodboard_lite_init()
 {
 	global $wowmoodboard;
 	
+	load_plugin_textdomain('wow_moodboard', false, basename( dirname( __FILE__ ) ) . '/languages' );
+	
 	require( dirname( __FILE__ ) . '/admin.php' );
     require( dirname( __FILE__ ) . '/wow-moodboard-class.php' );
 	
@@ -33,18 +35,10 @@ function wow_moodboard_lite_init()
 	{
 		$wowmoodboard = new WoW_MoodBoard();		
 	}
-	
-	load_plugin_textdomain('wow_moodboard', false, basename( dirname( __FILE__ ) ) . '/languages' );
-	
-	// Attach our Admin Menu
-	add_action( 'admin_menu', 'wow_moodboard_plugin_menu' );
-	
-	// Check if we need to update
-	add_action( 'admin_notices', 'wow_moodboard_update' );
 }
 
 // Let's start...
-defined( 'WOWMOODBOARD' ) or define( 'WOWMOODBOARD', '1.0.6' );
+defined( 'WOWMOODBOARD' ) or define( 'WOWMOODBOARD', '1.0.7' );
 
 // We need to wait until all plugins are loaded to know for sure if the Pro version is active as well:
 // In case it has been loaded before this Lite version we should prevent initializing the Lite Version.

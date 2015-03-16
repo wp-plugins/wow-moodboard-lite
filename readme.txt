@@ -3,7 +3,7 @@ Contributors: mschot
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
 Tags: mood board, collage, presentation, youtube, images, jquery, album, albums, galleries, gallery, image, image album, image captions, image gallery, images, media, media gallery, photo, photo albums, photo gallery, photographer, photography, photos, picture, Picture Gallery, pictures, responsive, responsive galleries, responsive gallery, wordpress gallery plugin, wordpress photo gallery plugin, wordpress responsive gallery, wp gallery, wp gallery plugins, video
 Requires at least: 4.0
-Tested up to: 4.1
+Tested up to: 4.1.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -57,6 +57,11 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 4. A Wow moodboard Pro with custom background, spotify albums and custom size
 
 == Changelog ==
+
+= 1.0.7 =
+* Added: additional configuration options
+* Bug resolved: Wide images (banners) can now corrctly be resized
+* Removed: Standard title for Google Image search images
 
 = 1.0.6 =
 * jQuery and javascript performance updates

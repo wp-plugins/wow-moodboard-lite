@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.4 [ 2014.12.20 ]
+   Version: 1.0.7 [ 2015.03.16 ]
    Author: Marc Schot
    Description: Load and execute the Google Image search
    Status: Production
@@ -35,6 +35,7 @@ function searchComplete()
 			results[ i ].tbUrl        = window.wowproxyurl + results[ i ].tbUrl;
 			results[ i ].url		  = window.wowproxyurl + results[ i ].url;
 			results[ i ].type         = "google#image";
+			results[ i ].title		  = "";
 
 			var uniqueid = results[ i ].unescapedUrl.hashCode();
 			var caption  = results[ i ].title;

@@ -3,13 +3,13 @@
 Part of Name: WoW Moodboard Lite
 Plugin URI: https://wownmedia.com/wow-moodboard/
 Description: Create the admin environment for the Wow Moodboard plugin.
-Version: 1.0.4 [ 2014.12.19 ]
+Version: 1.0.7 [ 2015.03.16 ]
 Author: Wow New Media
 Author URI: https://wownmedia.com
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.
-	Copyright © 2014 Wow New Media
+	Copyright © 2015 Wow New Media
 
 	Wow New Media
 	info@wownmedia.com
@@ -20,11 +20,472 @@ License: GPLv2 or later
 */
 defined( 'WOWMOODBOARD' ) or die( 'No direct access to this file allowed.' );
 
-function wow_moodboard_plugin_menu()
+class WowMoodboardOptions
 {
-	add_options_page( __( 'WoW MoodBoard Settings' ), 'Wow Moodboard Lite', 'manage_options', 'wow_moodboard', 'wowmoodboard_plugin_options' );
+	// Our options
+	private $options;
+
+
+	// Init Options
+	public function __construct()
+    {
+		// Attach our Admin Menu
+		add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
+        add_action( 'admin_init', array( $this, 'page_init' ) );
+
+		// Check if we need to update
+		add_action( 'admin_notices', 'wow_moodboard_update' );
+    }
+	
+	// Add options page
+	public function add_plugin_page()
+    {
+        // This page will be under "Settings"
+        add_options_page(
+            __( 'WoW MoodBoard Settings', 'wow_moodboard' ), 
+            'Wow Moodboard Lite', 
+            'manage_options', 
+            'wow_moodboard', 
+            array( $this, 'create_admin_page' )
+        );
+    }
+	
+	
+	// Create the options page
+	public function create_admin_page()
+    {
+        // Set class property
+		$this->read_Options();
+        ?>
+        <div class="wrap">
+            <h2><?php _e( 'Wow Moodboard Lite Plugin Settings ', 'wow_moodboard' ); ?></h2>           
+            <form method="post" action="options.php" name="formwowmoodboard">
+            <?php
+                // This prints out all hidden setting fields
+                settings_fields( 'wowmoodboard_option_group' );   
+                $this->do_settings_sections( 'wowmoodboard-setting-admin' );
+                submit_button(); 
+            ?>
+            </form>
+            <hr />
+    		
+            <h2>Wow Moodboard Pro</h2>
+            <a href="https://wownmedia.com/wow-moodboard/" title="Wow Moodboard Pro">
+            	<img src='<?php echo plugins_url( '/assets/images/wowmoodboardpro.jpg', __FILE__ ) ?>' 
+                	 alt='Wow Moodboard Pro' width='800' height='407'>
+			</a>
+            <h3>
+				<?php _e('Upgrade now to '); ?><a href="https://wownmedia.com/wow-moodboard/" title="Wow Moodboard Pro">Wow Moodboard Pro</a>
+            	<?php _e('to get additional options:'); ?>
+            </h3>
+            <ul>
+            	<li>* <?php _e("Customize the look of your mood boards with a <strong>custom background</strong>", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("Resize your mood boards to <strong>fit your needs</strong>", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("<strong>Auto-Scale</strong> your mood boards to different screen sizes", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("Add music to your mood boards with <strong>Spotify Album search</strong>", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("Allow your audience to view YouTube videos from your mood boards <strong>fullscreen</strong>", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("Receive <strong>more search results to choose from</strong> when performing Google Image and Youtube searches", 'wow_moodboard') ?></li>
+            	<li>* <?php _e("Add <strong>Clickable links</strong> to images placed on the Moodboard", 'wow_moodboard') ?></li>
+            </ul>
+            <hr />
+		</div>
+        <?php
+    }
+	
+	
+	// Register Settings
+	public function page_init()
+    {        
+	
+		// Register Settings
+        register_setting(
+            'wowmoodboard_option_group',	// Option group
+            'wow_youtube_api', 				// Option name
+            'sanitize_text_field' 			// Sanitize
+        ); 
+		
+		register_setting(
+            'wowmoodboard_option_group', 		// Option group
+            'wow_youtube_active', 				// Option name
+            array( $this, 'sanitizeBoolean' ) 	// Sanitize
+        );
+
+		register_setting(
+            'wowmoodboard_option_group', 		// Option group
+            'wow_google_active', 				// Option name
+            array( $this, 'sanitizeBoolean' ) 	// Sanitize
+        );
+
+
+		// Create Menu Sections
+		add_settings_section(
+            'setting_general_id', 								// ID
+            __( 'General Moodboard Settings', 'wow_moodboard' ),// Title
+            array( $this, 'print_generalsection_info' ), 		// Callback
+            'wowmoodboard-setting-admin' 						// Page
+        );  
+		
+        add_settings_section(
+            'setting_google_id', 									// ID
+            __( 'Google Image Search Settings', 'wow_moodboard' ),	// Title
+            array( $this, 'print_googlesection_info' ), 			// Callback
+            'wowmoodboard-setting-admin' 							// Page
+        );  
+		
+		add_settings_section(
+            'setting_youtube_id', 									// ID
+            __( 'YouTube Video Search Settings', 'wow_moodboard' ),	// Title
+            array( $this, 'print_ytsection_info' ), 				// Callback
+            'wowmoodboard-setting-admin' 							// Page
+        );  
+
+		add_settings_section(
+            'setting_spotify_id', 									// ID
+            __( 'Spotify Album Search Settings', 'wow_moodboard' ),	// Title
+            array( $this, 'print_spotifysection_info' ), 			// Callback
+            'wowmoodboard-setting-admin' 							// Page
+        );  
+
+        add_settings_section(
+            'setting_upload_id', 									// ID
+            __( 'Image Upload Settings', 'wow_moodboard' ),			// Title
+            array( $this, 'print_uploadsection_info' ), 			// Callback
+            'wowmoodboard-setting-admin' 							// Page
+        );  
+
+		add_settings_section(
+            'setting_wowproxy_id', 									// ID
+            __( 'Wow Proxy Settings', 'wow_moodboard' ),			// Title
+            array( $this, 'print_proxysection_info' ), 				// Callback
+            'wowmoodboard-setting-admin' 							// Page
+        );  
+
+
+		// Create Section Fields
+        add_settings_field(
+            'wow_autoscale', 										// ID
+            __( 'Enable Autoscale Moodboard Width', 'wow_moodboard' ),// Title 
+            array( $this, 'general_autoscale_callback' ), 			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_general_id', 									// Section      
+			array( 'label_for' => 'wow_autoscale' )   				// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_resize', 											// ID
+            __( 'Enable Resizeable Moodboard Height', 'wow_moodboard' ),// Title 
+            array( $this, 'general_resize_callback' ), 				// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_general_id', 									// Section      
+			array( 'label_for' => 'wow_resize' )   					// Set <label>  
+        );    
+		
+		add_settings_field(
+            'wow_background', 										// ID
+            __( 'Enable Custom Backgrounds', 'wow_moodboard' ),		// Title 
+            array( $this, 'general_background_callback' ), 			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_general_id', 									// Section      
+			array( 'label_for' => 'wow_background' )   				// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_google_activated', 								// ID
+            __( 'Enable Google Image Search', 'wow_moodboard' ),	// Title 
+            array( $this, 'ggl_activated_callback' ), 				// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_google_id', 									// Section      
+			array( 'label_for' => 'wow_google_activated' )			// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_google_url', 										// ID
+            __( 'Enable Clickable Links on Images', 'wow_moodboard' ),// Title 
+            array( $this, 'ggl_clickable_callback' ), 				// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_google_id', 									// Section      
+			array( 'label_for' => 'wow_google_url' )				// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_youtube_activated', 								// ID
+            __( 'Enable YouTube Search', 'wow_moodboard' ),			// Title 
+            array( $this, 'yt_activated_callback' ), 				// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_youtube_id', 									// Section      
+			array( 'label_for' => 'wow_youtube_activated' )			// Set <label>  
+        );    
+		
+		add_settings_field(
+            'wow_youtube_api', 										// ID
+            __( 'YouTube API Key', 'wow_moodboard' ),				// Title 
+            array( $this, 'yt_api_callback' ), 						// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_youtube_id', 									// Section      
+			array( 'label_for' => 'wow_youtube_api' )   			// Set <label>  
+        );      
+
+		add_settings_field(
+            'wow_youtube_fullscreen', 								// ID
+            __( 'Allow Fullscreen playback', 'wow_moodboard' ),		// Title 
+            array( $this, 'yt_fullscreen_callback' ), 				// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_youtube_id', 									// Section      
+			array( 'label_for' => 'wow_youtube_fullscreen' )		// Set <label>  
+        );      
+
+		add_settings_field(
+            'wow_spotify_activated', 								// ID
+            __( 'Enable Spotify Album Search', 'wow_moodboard' ),	// Title 
+            array( $this, 'spotify_activated_callback' ), 			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_spotify_id', 									// Section      
+			array( 'label_for' => 'wow_spotify_activated' )			// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_upload_activated', 								// ID
+            __( 'Enable Image Upload', 'wow_moodboard' ),			// Title 
+            array( $this, 'upload_activated_callback' ), 			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_upload_id', 									// Section      
+			array( 'label_for' => 'wow_upload_activated' )			// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_upload_url', 										// ID
+            __( 'Enable Clickable Links on Images', 'wow_moodboard' ),// Title 
+            array( $this, 'upload_clickable_callback' ),			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_upload_id', 									// Section      
+			array( 'label_for' => 'wow_upload_url' )				// Set <label>  
+        );
+		
+		add_settings_field(
+            'wow_proxy_activated', 									// ID
+            __( 'Enable Image Proxy', 'wow_moodboard' ),			// Title 
+            array( $this, 'wowproxy_activated_callback' ), 			// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_wowproxy_id', 									// Section      
+			array( 'label_for' => 'wow_proxy_activated' )			// Set <label>  
+        );
+
+    }
+	
+	
+	// Callback Functions
+	// General Section info
+	public function print_generalsection_info()
+	{
+		_e( "Configure your Moodboards` Look and Feel", 'wow_moodboard' );	
+	}
+	
+	// Google Image Search Section
+	public function print_googlesection_info()
+	{
+		_e( "Configure Google Image Search", 'wow_moodboard' );	
+	}
+	
+	
+	// Spotify Album Search
+	public function print_spotifysection_info()
+	{
+		_e( "Configure Spotify Album Search", 'wow_moodboard' );
+	}
+	
+	// Image Upload
+	public function print_uploadsection_info()
+	{
+		_e( "Configure Image Upload", 'wow_moodboard' );
+	}
+	
+	// Wow Proxy Section
+	public function print_proxysection_info()
+	{
+		_e( "Configure Wow Proxy", 'wow_moodboard' );
+	}
+	
+	// YouTube Section Info
+	public function print_ytsection_info()
+    {
+		_e( "Configure YouTube Video Search", 'wow_moodboard' );	
+		?>
+        <br><em>( <?php _e("The API Key is obtained from the Google Developers Console at", 'wow_moodboard'); ?> 
+        <a href="https://console.developers.google.com/" target="_blank">https://console.developers.google.com/</a> )</em>
+        <?php
+    }
+	
+	
+	// General Settings
+	// Autoscale
+	public function general_autoscale_callback()
+	{
+		_e( "Allow MoodBoards to scale to fit Screen Width", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	// Resize
+	public function general_resize_callback()
+	{
+		_e( "Allow MoodBoards` Height to be resized", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	// Background
+	public function general_background_callback()
+	{
+		_e( "Configure Custom Backgrounds for your MoodBoards", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	
+	// Google Settings
+	// Google Activated
+	public function ggl_activated_callback()
+	{
+		$enabled  = !isset( $this->options['wow_google_active'] ) || $this->options['wow_google_active'] == true  ? "checked" : "";
+		$disabled = $enabled == "" ? "checked" : "";
+		?> 
+		<input type="radio" name="wow_google_active" value="1" <?php echo $enabled; ?>  ><?php _e("Enable Google Image Search"); ?> &nbsp;&nbsp;
+		<input type="radio" name="wow_google_active" value="0" <?php echo $disabled; ?> ><?php _e("Disable Google Image Search");
+	}
+	
+	// Links
+	public function ggl_clickable_callback()
+	{
+		_e( "Enable Links to your Google Images so they become Clickable", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+
+	// YouTube Settings
+	// YouTube Activated
+	public function yt_activated_callback()
+	{
+		$enabled  = !isset( $this->options['wow_youtube_active'] ) || $this->options['wow_youtube_active'] == true  ? "checked" : "";
+		$disabled = $enabled == "" ? "checked" : "";
+		?>
+		<input type="radio" name="wow_youtube_active" value="1" <?php echo $enabled; ?>  >
+		<?php _e("Enable YouTube Search", 'wow_moodboard'); ?> &nbsp;&nbsp;
+		<input type="radio" name="wow_youtube_active" value="0" <?php echo $disabled; ?> >
+		<?php _e("Disable YouTube Search", 'wow_moodboard');
+	}
+
+	// YouTube API Key
+	public function yt_api_callback()
+    {
+        printf(
+            '<input type="text" id="wow_youtube_api" name="wow_youtube_api" value="%s" size="45" />',
+            isset( $this->options['wow_youtube_api'] ) ? esc_attr( $this->options['wow_youtube_api']) : ''
+        );
+    }
+	
+	// YouTube Fullscreen
+	public function yt_fullscreen_callback()
+	{
+		$this->upgradetopro_callback();	
+	}
+	
+	
+	// Spotify Settings
+	// Activated
+	public function spotify_activated_callback()
+	{
+		_e( "Add music from Spotify to your Moodboards", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+
+
+	// Upload Settings
+	// Upload Activated
+	public function upload_activated_callback()
+	{
+		$enabled  = !isset( $this->options['wow_upload_active'] ) || $this->options['wow_upload_active'] == true  ? "checked" : "";
+		$disabled = $enabled == "" ? "checked" : "";
+		?> 
+		<input type="radio" name="wow_upload_active" value="1" <?php echo $enabled; ?>  ><?php _e("Enable Image Upload"); ?> &nbsp;&nbsp;
+		<input type="radio" name="wow_upload_active" value="0" <?php echo $disabled; ?> ><?php _e("Disable Image Upload");
+	}
+	
+	// Links
+	public function upload_clickable_callback()
+	{
+		_e( "Enable Links to your Uploaded Images so they become Clickable", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	
+	// Wow Proxy Settings
+	// Activated
+	public function wowproxy_activated_callback()
+	{
+		_e( "Enable Image Proxy to allow local caching and prevent HTTPS warnings", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	
+	// Upgrade to Pro
+	public function upgradetopro_callback()
+    {
+		?>
+        <em><a href="https://wownmedia.com/wow-moodboard/" title="Wow Moodboard Pro">
+        <?php
+		_e( "Upgrade to Wow Moodboard Pro to enable this feature.", 'wow_moodboard');
+		?>
+        </a></em>
+        <?php
+    }
+
+
+	// Sanitize True/False values
+    public function sanitizeBoolean( $input )
+    {
+		return $input == true ? true : false;	
+    }
+	
+	// Fill the options
+	protected function read_Options()
+	{
+        $this->options['wow_youtube_api'] 		= get_option( 'wow_youtube_api' );
+		$this->options['wow_youtube_active'] 	= get_option( 'wow_youtube_active', true );
+		$this->options['wow_google_active'] 	= get_option( 'wow_google_active', true );
+		$this->options['wow_upload_active'] 	= get_option( 'wow_upload_active', true );
+	}
+
+	// Create sections with a divider line
+	protected function do_settings_sections( $page ) 
+	{
+		global $wp_settings_sections, $wp_settings_fields;
+	
+		if ( ! isset( $wp_settings_sections[$page] ) )
+			return;
+	
+		foreach ( (array) $wp_settings_sections[$page] as $section ) 
+		{
+			if ( $section['title'] )
+	    		echo "<hr><h3>{$section['title']}</h3>\n";
+	
+			if ( $section['callback'] )
+		    	call_user_func( $section['callback'], $section );
+	
+	    	if ( ! isset( $wp_settings_fields ) || !isset( $wp_settings_fields[$page] ) || !isset( $wp_settings_fields[$page][$section['id']] ) )
+	    		continue;
+	    	echo '<table class="form-table">';
+	    	do_settings_fields( $page, $section['id'] );
+	    	echo '</table>';
+		}
+	}
+
 }
 
+
+// Handle updating to a new version
 function wow_moodboard_update()
 {
 	if ( !current_user_can( 'manage_options' ) ) return false;
@@ -51,85 +512,7 @@ function wow_moodboard_update()
 	else update_option( "wowmoodboardversion", WOWMOODBOARD );	
 }
 
-function wowmoodboard_plugin_options()
+if( is_admin() )
 {
-	if ( !current_user_can( 'manage_options' ) )  {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-	}
-	
-    // variables for the field and option names 
-    $opt_name 			= 'wow_youtube_api';
-    $hidden_field_name 	= 'wow_submit_hidden';
-    $data_field_name 	= 'wow_youtube_api';
-
-    // Read in existing option value from database
-    $opt_val = get_option( $opt_name );
-
-    // See if the user has posted us some information
-    // If they did, this hidden field will be set to 'Y'
-    if( isset($_POST[ $hidden_field_name ]) && $_POST[ $hidden_field_name ] == 'Y' ) {
-        // Read their posted value
-        $opt_val = $_POST[ $data_field_name ];
-
-        // Save the posted value in the database
-        update_option( $opt_name, $opt_val );
-
-        // Put an settings updated message on the screen
-
-	?>
-	<div class="updated"><p><strong><?php _e('settings saved.', 'wow_moodboard' ); ?></strong></p></div>
-	<?php
-
-    }
-
-    // Now display the settings editing screen
-
-    echo '<div class="wrap">';
-
-    // header
-
-    echo "<h2>" . __( 'Wow Moodboard Lite Plugin Settings ', 'wow_moodboard' ) . "</h2>";
-	
-	// settings form
-    
-    ?>
-
-	<form name="formwowmoodboard" method="post" action="">
-		<input type="hidden" name="<?php echo $hidden_field_name; ?>" value="Y">
-
-		<p><h3><?php _e("YouTube API Key:", 'wow_moodboard' ); ?> </h3>
-			<input type="text" name="<?php echo $data_field_name; ?>" value="<?php echo $opt_val; ?>" size="40">
-            <label for="<?php echo $data_field_name; ?>"><em><?php _e("The API Key is obtained from the Google Developers Console at"); ?> <a href="https://console.developers.google.com/" target="_blank">https://console.developers.google.com/</a>.</em></label>
-		</p>
-
-		<p class="submit">
-			<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e('Save Changes') ?>" />
-		</p>
-
-	</form>
-	</div><hr />
-    
-    <?php
-    // Wow Moodboard Pro
-	echo '<a href="https://wownmedia.com/wowmoodboard" title="Wow Moodboard Pro">';
-	echo "<img src='" . plugins_url( '/assets/images/wowmoodboardpro.jpg', __FILE__ ) . "' alt='Wow Moodboard Pro' width='800' height='407'></a>";
-	echo "<h3>" . __('Upgrade now to ');
-	echo '<a href="https://wownmedia.com/wowmoodboard" title="Wow Moodboard Pro">Wow Moodboard Pro</a> ' . __('to get additional options:');
-	echo "</h3>";
-	echo "<ul><li>* ";
-	echo __("Allow clients to view YouTube videos from your mood boards fullscreen") . "</li><li>* ";
-	echo __("Scale your mood boards to different screen sizes") . "</li><li>* ";
-	echo __("Resize your mood boards") . "</li><li>* ";
-	echo __("Customize the look of your mood boards") . "</li><li>* ";
-	echo __("Add music to your mood boards with Spotify Album search") . "</li><li>* ";
-	echo __("Add links to the images on your mood boards") . "</li><li>* ";
-	echo __("Receive more search results on Google Image and Youtube searches") . "</li></ul><hr />";
-
-}
-
-// Return true if the current user is a Site admin
-function isSiteAdmin()
-{
-    $currentUser = wp_get_current_user();
-    return in_array( 'administrator', $currentUser->roles );
+    $my_settings_page = new WowMoodboardOptions();
 }

@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.0.6 [ 2015.01.12 ]
+Version: 1.0.7 [ 2015.03.16 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -27,8 +27,10 @@ class WoW_MoodBoard
 {
 	// Define API and customization vars
 	protected $YoutubeAPI       = false; 
+	protected $YouTubeActive	= true;
 	protected $YoutubeMaxResuls = 10; 
 	protected $GoogleMaxResuls  = 1; 
+	protected $GoogleActive		= true;
 	
 	function __construct() 
 	{
@@ -49,7 +51,9 @@ class WoW_MoodBoard
 		add_shortcode( 'moodboard', array( $this, 'create_moodboard' ) );
 		
 		// Read options from Database
-		$this->YoutubeAPI = get_option( "wow_youtube_api" );
+		$this->YoutubeAPI 	= get_option( "wow_youtube_api" );
+		$this->YouTubeActive= get_option( "wow_youtube_active" );
+		$this->GoogleActive	= get_option( "wow_google_active" );
 	}
 	
 	
@@ -159,7 +163,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.6', 
+							'1.0.7.2', 
 							true 
 		);		
 		
@@ -167,7 +171,7 @@ class WoW_MoodBoard
 							plugins_url( 'assets/js/wow-moodboard-lite.js', __FILE__ ), 
 							array( 	'wowmoodboard', 
 							), 
-							'1.0.6', 
+							'1.0.7', 
 							true 
 		);
 		
@@ -193,7 +197,7 @@ class WoW_MoodBoard
 								array( 	'googlejsapi', 
 										'jquery-ui-core' 
 								), 
-								'1.0.4' 
+								'1.0.7.1' 
 			);
 
 			wp_enqueue_script( 	'wowwpmedia', 

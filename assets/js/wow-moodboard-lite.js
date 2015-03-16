@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.6 [ 2014.01.12 ]
+   Version: 1.0.7 [ 2015.03.16 ]
    Author: Wow New Media
    Description: JavaScript functions used in WoW MoodBoard Lite
    Status: Production

@@ -3,13 +3,13 @@
 Part of Name: WoW Moodboard Lite
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The moodboard template for the Wow Moodboard Lite plugin.
-Version: 1.0.4 [ 2014.12.19 ]
+Version: 1.0.7 [ 2015.03.16 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.
-	Copyright © 2014 Wow New Media
+	Copyright © 2015 Wow New Media
 
 	Wow New Media
 	info@wownmedia.com
@@ -43,16 +43,23 @@ else
     <div id="wow-edit-panel" style='display:none;'>
 	<div id='wowtabs' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>
     	<ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'>
+        	<?php if ( !isset( $this->GoogleActive ) || $this->GoogleActive ) : ?>
         	<li class='wowtab'>
             	<a href='#googlesearch' class='ui-tabs-anchor'><?php echo translate( 'Google Images' ); ?></a>
             </li>
+            <?php endif ?>
+            <?php if ( !isset( $this->YouTubeActive ) || $this->YouTubeActive ) : ?>
             <li class='wowtab'>
             	<a class='ui-tabs-anchor' href='#youtube'><?php echo translate( 'Youtube' ); ?></a>
             </li>
+            <?php endif ?>
+            <?php if ( !isset( $this->UploadActive ) || $this->UploadActive ) : ?>
             <li class='wowtab'>
             	<a class='ui-tabs-anchor' href='#uploader'><?php echo translate( 'Upload' ); ?></a>
             </li>
+            <?php endif ?>
 		</ul>
+        <?php if ( !isset( $this->YouTubeActive ) || $this->YouTubeActive ) : ?>
         <div id='youtube' class='ui-tabs-panel ui-widget-content' style='display:none;'>
         	<?php if ( ! $this->YoutubeAPI ) : ?>
             <div class="error"><?php echo translate( 'Please enter your Google API Key in the settings first' ); ?></div>
@@ -63,6 +70,8 @@ else
             </label>
             <?php endif ?>
         </div>
+        <?php endif ?>
+        <?php if ( !isset( $this->GoogleActive ) || $this->GoogleActive ) : ?>
         <div id='googlesearch' class='ui-tabs-panel ui-widget-content'>
         	<label> 
 				<input type='text' id='googleimagesearchquery' value=''/>
@@ -70,6 +79,8 @@ else
 				<button id='image-search-button' disabled onclick='googleimagesearch()'><?php echo translate( 'Image Search' ); ?></button>
             </label>
         </div>
+        <?php endif ?>
+        <?php if ( !isset( $this->UploadActive ) || $this->UploadActive ) : ?>
         <div id='uploader' class='ui-tabs-panel ui-widget-content' style='display:none;'>
     			<p><?php echo translate( "Your browser doesn't have Flash, Silverlight or HTML5 support." ); ?></p>
                 <script type='text/javascript'>
@@ -82,6 +93,7 @@ else
 				});
 				</script>
 		</div>
+        <?php endif ?>
 	</div>
     <div id='imagescroller' class="scroll-pane">
     	<label> 
