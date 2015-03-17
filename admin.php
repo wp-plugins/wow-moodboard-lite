@@ -116,6 +116,11 @@ class WowMoodboardOptions
             array( $this, 'sanitizeBoolean' ) 	// Sanitize
         );
 
+		register_setting(
+            'wowmoodboard_option_group', 		// Option group
+            'wow_upload_active', 				// Option name
+            array( $this, 'sanitizeBoolean' ) 	// Sanitize
+        );
 
 		// Create Menu Sections
 		add_settings_section(
@@ -269,6 +274,15 @@ class WowMoodboardOptions
             'setting_wowproxy_id', 									// Section      
 			array( 'label_for' => 'wow_proxy_activated' )			// Set <label>  
         );
+		
+		add_settings_field(
+            'wow_caching_activated', 								// ID
+            __( 'Enable Moodboard HTML caching', 'wow_moodboard' ),	// Title 
+            array( $this, 'wowcaching_activated_callback' ), 		// Callback
+            'wowmoodboard-setting-admin', 							// Page
+            'setting_wowproxy_id', 									// Section      
+			array( 'label_for' => 'wow_caching_activated' )			// Set <label>  
+        );
 
     }
 	
@@ -420,11 +434,19 @@ class WowMoodboardOptions
 	}
 	
 	
-	// Wow Proxy Settings
+	// Wow Proxy Settings 
 	// Activated
 	public function wowproxy_activated_callback()
 	{
 		_e( "Enable Image Proxy to allow local caching and prevent HTTPS warnings", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	// Moodboard Caching
+	public function wowcaching_activated_callback()
+	{
+		_e( "Enable Moodboard HTML caching to speed up pageload", 'wow_moodboard' );	
 		?><br><?php
 		$this->upgradetopro_callback();	
 	}
@@ -446,7 +468,7 @@ class WowMoodboardOptions
 	// Sanitize True/False values
     public function sanitizeBoolean( $input )
     {
-		return $input == true ? true : false;	
+		return $input == "1" ? "1" : "0";	
     }
 	
 	// Fill the options

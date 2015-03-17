@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite / Pro
-   Version: 1.0.7 [ 2015.03.16 ]
+   Version: 1.0.7.1 [ 2015.03.17 ]
    Author: Wow New Media
    Description: JavaScript functions used to load and manage the WoW MoodBoard
    Status: Production
@@ -348,7 +348,7 @@ function setDraggable( thumbnailID, payload )
 			} // Switch object.type
 		} // Function start dragging
 	} ); // dragThumbnail.draggable
-	
+		
 	// set the data payload for the object 
 	dragThumbnail.data( 'object', payload ); 
 		
@@ -424,7 +424,6 @@ function makeResizeable( ObjectID )
 		aspectRatio: true,
 		handles: "all",
 		maxWidth: 1000,
-		minWidth: 80,
 		autoHide: false,
 		containment: "#canvas",
 		
@@ -607,6 +606,7 @@ function saveMoodBoard( wownonce )
 			security  : wownonce,
 			postid    : postid,
 			canvas    : canvas,
+			moodboard : Moodboard.html(),
 			width     : Moodboard.width(),
 			height    : Moodboard.height(),
 			bgimage   : Moodboard.css( "background-image" ),

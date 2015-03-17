@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.0.7 [ 2015.03.16 ]
+Version: 1.0.7.1 [ 2015.03.17 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -31,6 +31,7 @@ class WoW_MoodBoard
 	protected $YoutubeMaxResuls = 10; 
 	protected $GoogleMaxResuls  = 1; 
 	protected $GoogleActive		= true;
+	protected $UploadActive		= true;
 	
 	function __construct() 
 	{
@@ -54,6 +55,7 @@ class WoW_MoodBoard
 		$this->YoutubeAPI 	= get_option( "wow_youtube_api" );
 		$this->YouTubeActive= get_option( "wow_youtube_active" );
 		$this->GoogleActive	= get_option( "wow_google_active" );
+		$this->UploadActive	= get_option( "wow_upload_active" );
 	}
 	
 	
@@ -252,12 +254,14 @@ class WoW_MoodBoard
 		$moodboardcontent[ "content" ] 		= isset( $content )               ? $content               : false;
 		$moodboardcontent[ "width" ]		= isset( $dimentions['width'] )   ? $dimentions['width']   : false;
 		$moodboardcontent[ "height" ]		= isset( $dimentions['height'] )  ? $dimentions['height']  : false;
-		$moodboardcontent['bgimage']		= isset( $background['image'] )   ? $background['image']   : "none";
+		$moodboardcontent['bgimage']		= get_option( "wow_background_active" ) && isset( $background['image'] )   
+																			  ? $background['image']   : "none";
 		$moodboardcontent['bgcontain']		= isset( $background['contain'] ) ? $background['contain'] : "inherit";
 		$moodboardcontent['bgrepeat']		= isset( $background['repeat'] )  ? $background['repeat']  : "round";
 	
 		// Push the moodboard
 		echo json_encode($moodboardcontent); 
+
 	    die(); // this is required to return a proper result
 	}
 
@@ -330,8 +334,16 @@ class WoW_MoodBoard
 			}
 
 			$response['dimentions'] = update_post_meta( $_POST['postid'], "wowdimentions", $dimentions );
-			$response['background'] = update_post_meta( $_POST['postid'], "wowbackground", $background );
-
+			if ( get_option( "wow_background_active" ) )
+			{
+				$response['background'] = update_post_meta( $_POST['postid'], "wowbackground", $background );
+			}
+			
+			if ( get_option("wow_cache_canvas", true ) )
+			{
+				$response['cached'] = update_post_meta( $_POST['postid'], "wow_cached_canvas", $_POST['moodboard'] );
+			}
+			
 			$response['success'] = true;
 		}
  

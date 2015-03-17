@@ -3,10 +3,10 @@
 Plugin Name: WoW Moodboard Lite
 Plugin URI: https://wownmedia.com/wow-moodboard/
 Description: Create a Mood board for your Wordpress pages and posts. Lite version.
-Version: 1.0.7
+Version: 1.0.7.1
 Author: Wow New Media
 Author URI: https://wownmedia.com
-Last Change: 2015.03.16
+Last Change: 2015.03.17
 License: GPLv2 or later
 
 	WoW Moodboard, plugin for Wordpress.

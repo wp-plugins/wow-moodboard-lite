@@ -31,6 +31,7 @@ All the functionality of Wow moodboard Lite +
 - Allow your audience to view YouTube videos from your mood boards **fullscreen**
 - Receive **more search results to choose from** when performing Google Image and Youtube searches
 - Add **Clickable links** to images placed on the Moodboard
+- Add HTML Cache to your Mood boards for faster pageloads
 
 More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
 
@@ -57,6 +58,9 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 4. A Wow moodboard Pro with custom background, spotify albums and custom size
 
 == Changelog ==
+
+= 1.0.7.1 =
+* Bug fix
 
 = 1.0.7 =
 * Added: additional configuration options
