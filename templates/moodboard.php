@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The moodboard template for the Wow Moodboard Lite plugin.
-Version: 1.0.7 [ 2015.03.16 ]
+Version: 1.1.0 [ 2015.04.06 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -84,7 +84,7 @@ else
         <div id='uploader' class='ui-tabs-panel ui-widget-content' style='display:none;'>
     			<p><?php echo translate( "Your browser doesn't have Flash, Silverlight or HTML5 support." ); ?></p>
                 <script type='text/javascript'>
-				jQuery( document ).ready( function() 
+				document.addEventListener("DOMContentLoaded", function(event) 
 				{
 					wowupload( 	<?php echo json_encode( wp_create_nonce( 'media-form' ) ); ?>, 
 								<?php echo json_encode( admin_url( 'async-upload.php' ) ); ?>, 
@@ -124,7 +124,7 @@ var apiKey       = '<?php echo $this->YoutubeAPI; ?>';
 var YTmaxResults = '<?php echo $this->YoutubeMaxResuls; ?>';
 var wowproxyurl  = '<?php echo plugins_url( "wowproxy.php", dirname(__FILE__) ); ?>' + '?url=';
 <!--
-jQuery( document ).ready(function() 
+document.addEventListener("DOMContentLoaded", function(event) 
 {
 	<?php if ( isset( $edit ) && $edit ) : ?>
 	loadEditMode();
