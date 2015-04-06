@@ -56,6 +56,7 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 2. A mood board implemented in a page of a webzine
 3. A mood board implemented in a post in the blog of a fashion label
 4. A Wow moodboard Pro with custom background, spotify albums and custom size
+5. Wow Moodboard Admin/Settings interface
 
 == Changelog ==
 
