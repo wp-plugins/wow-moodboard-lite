@@ -60,7 +60,7 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 == Changelog ==
 
 = 1.1.0 =
-* Added Genesis Framework compatibility
+* Added Genesis Framework 2.1 compatibility
 
 = 1.0.7.1 =
 * Bug fix
