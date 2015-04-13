@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite
-   Version: 1.0.4 [ 2014.12.19 ]
+   Version: 1.1.1 [ 2015.03.13 ]
    Author: Wow New Media
    Description: Setup the WoW MoodBoard JavaScript in the <head> section
    Status: Production
@@ -70,7 +70,7 @@ function wowupload( wpnonce, wowurl, includeurl )
 // Last change: 2014.12.18
 function doneResizing() 
 {
-	var moodBoardwidth = jQuery( "#canvas").width();
+	var moodBoardwidth = jQuery( "#wowcanvas").width();
 	var screenWidth    = jQuery( window ).width();
 
 	if ( windowWidth != screenWidth && window.mbwidth != moodBoardwidth )

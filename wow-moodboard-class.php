@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.0.7.1 [ 2015.03.17 ]
+Version: 1.1.1[ 2015.04.13 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -53,9 +53,9 @@ class WoW_MoodBoard
 		
 		// Read options from Database
 		$this->YoutubeAPI 	= get_option( "wow_youtube_api" );
-		$this->YouTubeActive= get_option( "wow_youtube_active" );
-		$this->GoogleActive	= get_option( "wow_google_active" );
-		$this->UploadActive	= get_option( "wow_upload_active" );
+		$this->YouTubeActive= get_option( "wow_youtube_active", true );
+		$this->GoogleActive	= get_option( "wow_google_active", true );
+		$this->UploadActive	= get_option( "wow_upload_active", true );
 	}
 	
 	
@@ -67,7 +67,7 @@ class WoW_MoodBoard
 		{		
 			// Check if a user has edit/admin rights for this post/page
 			$postid = get_the_ID();
-			$edit   = $this->checkMoodboardEdit( $postid );				
+			$edit   = WoW_MoodBoard::checkMoodboardEdit( $postid );				
 		
 			// Load all the needed scripts and styles
 			$this->LoadScripts( $edit );
@@ -100,13 +100,13 @@ class WoW_MoodBoard
 		wp_enqueue_style( 	'wowmoodboard-styles', 
 							plugins_url( 'assets/css/wowmoodboard.css', __FILE__ ), 
 							array(), 
-							'1.0.6' 
+							'1.1.1' 
 		);
 		
 		wp_enqueue_style( 	'font-awesome', 
 							plugins_url( 'assets/css/font-awesome.min.css', __FILE__ ), 
 							array(), 
-							'4.0.2' 
+							'4.3.0' 
 		);
 		
 		if ( $edit ) 
@@ -149,7 +149,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.4' 
+							'1.1.1' 
 		);
 
 		wp_enqueue_script( 'wowmoodboard', 
@@ -165,7 +165,7 @@ class WoW_MoodBoard
 									'jquery-ui-button',
 									'jquery-ui-progressbar'  
 							), 
-							'1.0.7.2', 
+							'1.1.1', 
 							true 
 		);		
 		
@@ -173,7 +173,7 @@ class WoW_MoodBoard
 							plugins_url( 'assets/js/wow-moodboard-lite.js', __FILE__ ), 
 							array( 	'wowmoodboard', 
 							), 
-							'1.0.7', 
+							'1.1.1', 
 							true 
 		);
 		
@@ -199,14 +199,14 @@ class WoW_MoodBoard
 								array( 	'googlejsapi', 
 										'jquery-ui-core' 
 								), 
-								'1.0.7.1' 
+								'1.1.1' 
 			);
 
 			wp_enqueue_script( 	'wowwpmedia', 
 								plugins_url( 'assets/js/wow-wpmedia.js', __FILE__ ), 
 								array( 	'wowmoodboard', 
 								), 
-								'1.0.4', 
+								'1.1.1', 
 								true 
 			);
 		}
@@ -217,10 +217,11 @@ class WoW_MoodBoard
  	 * A Moodboard can be edited when:
 	 * - The User has Admin rights;
 	 * - The User has edit-rights to the current page/post;
+	 * - The User is viewing his own BuddyPress profile
 	 */	
 	public static function checkMoodboardEdit( $postid )
 	{
-		return current_user_can( 'edit_post', $postid );
+		return WoW_MoodBoard::checkBuddyPressId() || WoW_MoodBoard::checkSaveAllowed( $postid );
 	}
 	
 	
@@ -230,9 +231,19 @@ class WoW_MoodBoard
 		global $wowmoodboard;
 	
     	// Check if this request comes from us
-		check_ajax_referer( 'wowcanvas-security'.$_POST['postid'], 'security' );
+		$postid = isset( $_POST['postid'] ) ? $_POST['postid'] : 0;
+		check_ajax_referer( 'wowcanvas-security'.$postid, 'security' );
 
-		if ( get_post_status( $_POST['postid']) == "publish" || WoW_MoodBoard::checkMoodboardEdit( $_POST['postid'] ) ) 
+		// Check if we show a BuddyPress profile or Page/Post
+		if ( class_exists( 'BuddyPress' ) && bp_is_member() ) 
+		{
+			// We are looking at a BuddyPress profile
+			$userId		= bp_displayed_user_id();
+			$content    = get_user_meta( $userId, "moodboard", true);
+			$dimentions = get_user_meta( $userId, "wowdimentions", true);
+			$background = get_user_meta( $userId, "wowbackground", true);
+		}
+		elseif ( get_post_status( $_POST['postid']) == "publish" || WoW_MoodBoard::checkMoodboardEdit( $postid ) ) 
 		{
 			$content    = get_post_meta( $_POST['postid'], "moodboard", true);
 			$dimentions = get_post_meta( $_POST['postid'], "wowdimentions", true);
@@ -248,7 +259,7 @@ class WoW_MoodBoard
 	
     	// generate the response
 		$moodboardcontent = array();
-		$moodboardcontent[ "edit" ] 		= WoW_MoodBoard::checkMoodboardEdit( $_POST['postid'] );
+		$moodboardcontent[ "edit" ] 		= WoW_MoodBoard::checkMoodboardEdit( $postid ); 
 		$moodboardcontent[ 'header' ] 		= $moodboardcontent["edit"] ? translate('How do I start?') : false;
 		$moodboardcontent[ 'instructions' ]	= $moodboardcontent["edit"] ? translate('Place several objects of your interests here.<ol><li>Enter your Search (for instance a Youtube video) or Upload a photo directly from your computer.</li><li>Drag the object from the grey bar to this Moodboard.</li></ol>') : false;
 		$moodboardcontent[ "content" ] 		= isset( $content )               ? $content               : false;
@@ -327,24 +338,51 @@ class WoW_MoodBoard
 			$background['contain'] = isset( $_POST['bgcontain'] ) ? $_POST['bgcontain'] : "inherit";
 			$background['repeat']  = isset( $_POST['bgrepeat'] ) ? $_POST['bgrepeat'] : "round";
 	
-			// Save to Database
-			if (!empty( $canvas ) )
+			// Save to Database, either BuddyPress or Post/Page
+			if ( WoW_MoodBoard::checkBuddyPressId() )
 			{
-				$response['canvas'] = update_post_meta( $_POST['postid'], "moodboard", $canvas );	
-			}
+				// We are editing a BuddyPress profile (and allowed to do so)
+				$userId = bp_displayed_user_id();	
+				if (!empty( $canvas ) )
+				{
+					$response['canvas'] = update_user_meta( $userId, "moodboard", $canvas );	
+				}
 
-			$response['dimentions'] = update_post_meta( $_POST['postid'], "wowdimentions", $dimentions );
-			if ( get_option( "wow_background_active" ) )
-			{
-				$response['background'] = update_post_meta( $_POST['postid'], "wowbackground", $background );
-			}
+				$response['dimentions'] = update_user_meta( $userId, "wowdimentions", $dimentions );
+				if ( get_option( "wow_background_active" ) )
+				{
+					$response['background'] = update_user_meta( $userId, "wowbackground", $background );
+				}
 			
-			if ( get_option("wow_cache_canvas", true ) )
-			{
-				$response['cached'] = update_post_meta( $_POST['postid'], "wow_cached_canvas", $_POST['moodboard'] );
-			}
+				if ( get_option("wow_cache_canvas", true ) )
+				{
+					$response['cached'] = update_user_meta( $userId, "wow_cached_canvas", $_POST['moodboard'] );
+				}
 			
-			$response['success'] = true;
+				$response['success'] = true;
+			}
+			elseif ( WoW_MoodBoard::checkSaveAllowed( $_POST['postid'] ) )
+			{
+				// We are editing a Post/Page (and allowed to do so)	
+				if (!empty( $canvas ) )
+				{
+					$response['canvas'] = update_post_meta( $_POST['postid'], "moodboard", $canvas );	
+				}
+
+
+				$response['dimentions'] = update_post_meta( $_POST['postid'], "wowdimentions", $dimentions );
+				if ( get_option( "wow_background_active" ) )
+				{
+					$response['background'] = update_post_meta( $_POST['postid'], "wowbackground", $background );
+				}
+			
+				if ( get_option("wow_cache_canvas", true ) )
+				{
+					$response['cached'] = update_post_meta( $_POST['postid'], "wow_cached_canvas", $_POST['moodboard'] );
+				}
+			
+				$response['success'] = true;
+			}
 		}
  
  		else 
@@ -357,6 +395,22 @@ class WoW_MoodBoard
     	// response output
 	    echo json_encode($response);
     	die();
+	}
+	
+	// Check if we are on a BuddyPress profile page and if we are allowed to update the moodmoard
+	public static function checkBuddyPressId()
+	{
+		if ( class_exists( 'BuddyPress' ) ) 
+		{
+			return bp_is_member() && bp_user_has_access();
+		}
+		else return false;
+	}
+	
+	// Check if we are allowed to save a Moodboard
+	public static function checkSaveAllowed( $postid )
+	{
+		return current_user_can('edit_post', $postid );	
 	}
 		
 	

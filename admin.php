@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite
 Plugin URI: https://wownmedia.com/wow-moodboard/
 Description: Create the admin environment for the Wow Moodboard plugin.
-Version: 1.0.7 [ 2015.03.16 ]
+Version: 1.1.1 [ 2015.04.13 ]
 Author: Wow New Media
 Author URI: https://wownmedia.com
 License: GPLv2 or later
@@ -283,6 +283,23 @@ class WowMoodboardOptions
             'setting_wowproxy_id', 									// Section      
 			array( 'label_for' => 'wow_caching_activated' )			// Set <label>  
         );
+		
+		// BuddyPress
+			add_settings_section(
+            	'setting_buddypress_id', 								// ID
+	            __( 'Buddypress Settings', 'wow_moodboard' ),			// Title
+    	        array( $this, 'print_buddypresssection_info' ), 		// Callback
+        	    'wowmoodboard-setting-admin' 							// Page
+       		);  
+
+			add_settings_field(
+    	        'wow_buddypress', 										// ID
+        	    __( 'Enable Moodboard on Buddypress profiles', 'wow_moodboard' ),// Title 
+            	array( $this, 'wow_buddypress_activated' ),			// Callback
+    	        'wowmoodboard-setting-admin', 							// Page
+        	    'setting_buddypress_id', 								// Section      
+				array( 'label_for' => 'wow_buddypress' )				// Set <label>  
+       		);
 
     }
 	
@@ -329,6 +346,11 @@ class WowMoodboardOptions
         <?php
     }
 	
+	// Wow Proxy Section
+	public function print_buddypresssection_info()
+	{
+		_e( "Enable Moodboards on BuddyPress profiles", 'wow_moodboard' );
+	}
 	
 	// General Settings
 	// Autoscale
@@ -447,6 +469,14 @@ class WowMoodboardOptions
 	public function wowcaching_activated_callback()
 	{
 		_e( "Enable Moodboard HTML caching to speed up pageload", 'wow_moodboard' );	
+		?><br><?php
+		$this->upgradetopro_callback();	
+	}
+	
+	// Add BuddyPress Profile
+	public function wow_buddypress_activated()
+	{
+		_e( "Enable Moodboards on BuddyPress profiles", 'wow_moodboard' );	
 		?><br><?php
 		$this->upgradetopro_callback();	
 	}
