@@ -61,6 +61,9 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 
 == Changelog ==
 
+= 1.1.1.1 =
+* Bug (introduced in v1.1.1) fixed in fileuploader 
+
 = 1.1.1 =
 * (Pro) Added BuddyPress Profile option
 * Bug Fixes

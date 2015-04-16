@@ -3,7 +3,7 @@
 Part of Name: WoW Moodboard Lite / Pro
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: The core class for the Wow Moodboard Lite and Pro plugin.
-Version: 1.1.1[ 2015.04.13 ]
+Version: 1.1.1.1[ 2015.04.16 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -206,7 +206,7 @@ class WoW_MoodBoard
 								plugins_url( 'assets/js/wow-wpmedia.js', __FILE__ ), 
 								array( 	'wowmoodboard', 
 								), 
-								'1.1.1', 
+								'1.1.1.1', 
 								true 
 			);
 		}
