@@ -355,9 +355,9 @@ function( window, document, plupload, o, $ )
 					result.unescapedUrl = uploadedimageresult.data.sizes.full.url;
 					result.width 		= uploadedimageresult.data.sizes.full.width;
 					result.height		= uploadedimageresult.data.sizes.full.height;
-					result.tbWidth 		= uploadedimageresult.data.sizes.medium.width;
-					result.tbHeight		= uploadedimageresult.data.sizes.medium.height;
-					result.tbUrl		= uploadedimageresult.data.sizes.medium.url;
+					result.tbWidth 		= uploadedimageresult.data.sizes.thumbnail.width;
+					result.tbHeight		= uploadedimageresult.data.sizes.thumbnail.height;
+					result.tbUrl		= uploadedimageresult.data.sizes.thumbnail.url;
 					result.title		= "";
 				
 					setDraggable( "#imageresult" + uniqueid, result);
