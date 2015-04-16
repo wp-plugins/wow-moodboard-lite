@@ -3,7 +3,7 @@ Contributors: mschot
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
 Tags: mood board, collage, presentation, youtube, images, jquery, album, albums, galleries, gallery, image, image album, image captions, image gallery, images, media, media gallery, photo, photo albums, photo gallery, photographer, photography, photos, picture, Picture Gallery, pictures, responsive, responsive galleries, responsive gallery, wordpress gallery plugin, wordpress photo gallery plugin, wordpress responsive gallery, wp gallery, wp gallery plugins, video, buddypress
 Requires at least: 4.0
-Tested up to: 4.1.1
+Tested up to: 4.2
 Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
