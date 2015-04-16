@@ -1,7 +1,7 @@
 === Wow Moodboard Lite ===
 Contributors: mschot
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K2YMTHZXUUXJS
-Tags: mood board, collage, presentation, youtube, images, jquery, album, albums, galleries, gallery, image, image album, image captions, image gallery, images, media, media gallery, photo, photo albums, photo gallery, photographer, photography, photos, picture, Picture Gallery, pictures, responsive, responsive galleries, responsive gallery, wordpress gallery plugin, wordpress photo gallery plugin, wordpress responsive gallery, wp gallery, wp gallery plugins, video
+Tags: mood board, collage, presentation, youtube, images, jquery, album, albums, galleries, gallery, image, image album, image captions, image gallery, images, media, media gallery, photo, photo albums, photo gallery, photographer, photography, photos, picture, Picture Gallery, pictures, responsive, responsive galleries, responsive gallery, wordpress gallery plugin, wordpress photo gallery plugin, wordpress responsive gallery, wp gallery, wp gallery plugins, video, buddypress
 Requires at least: 4.0
 Tested up to: 4.1.1
 Stable tag: 1.1
@@ -31,7 +31,8 @@ All the functionality of Wow moodboard Lite +
 - Allow your audience to view YouTube videos from your mood boards **fullscreen**
 - Receive **more search results to choose from** when performing Google Image and Youtube searches
 - Add **Clickable links** to images placed on the Moodboard
-- Add HTML Cache to your Mood boards for faster pageloads
+- Add HTML **Cache** to your Mood boards for faster pageloads ( **important SEO enhancement** )
+- Enable Mood Boards on **BuddyPress** profiles
 
 More info at [Wow New Media](https://wownmedia.com/wow-moodboard/ "Wow Moodboard Pro")
 
@@ -59,6 +60,14 @@ In order to be able to use the Youtube Video search you will need to obtain a (*
 5. Wow Moodboard Admin/Settings interface
 
 == Changelog ==
+
+= 1.1.1.1 =
+* Bug (introduced in v1.1.1) fixed in fileuploader 
+
+= 1.1.1 =
+* (Pro) Added BuddyPress Profile option
+* Bug Fixes
+* Updated included FontAwesome to version 4.3.0
 
 = 1.1.0 =
 * Added Genesis Framework 2.1 compatibility

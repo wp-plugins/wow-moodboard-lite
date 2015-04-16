@@ -99,7 +99,7 @@ else
     	<label> 
 			<button id='clearsearchresults' onclick='resetImageResults()' style='display:none;'><?php echo translate( 'Clear Results' ); ?></button>
         </label>
-   		<div id='canvasimages' class="scroll-content">
+   		<div id='wowcanvasimages' class="scroll-content">
     
     	</div>
 		<div class="scroll-bar-wrap ui-widget-content ui-corner-bottom">
@@ -114,7 +114,7 @@ else
 	?>
     </div>
 <?php endif ?>           
-	<div id='canvas' class='<?php echo $canvasclass; ?>'>
+	<div id='wowcanvas' class='<?php echo $canvasclass; ?>'>
     	<div id='loading'><img src='<?php echo plugins_url( '/assets/images/ajax-loader.gif', dirname(__FILE__) ); ?>' alt='Loading Moodboard' /></div>
     </div>
    

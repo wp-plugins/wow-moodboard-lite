@@ -1,5 +1,5 @@
 /* Part of Name: WoW Moodboard Lite / Pro
-   Version: 1.0.7.1 [ 2015.03.17 ]
+   Version: 1.1.1 [ 2015.04.13 ]
    Author: Wow New Media
    Description: JavaScript functions used to load and manage the WoW MoodBoard
    Status: Production
@@ -17,7 +17,7 @@ function initMoodboard ( wownonce, postid )
 	// Export nonce and postid to global because we need them later to save the mood board back to Wordpress
 	window.wownonce = wownonce;
 	window.postid   = postid;
-	window.mbwidth  = jQ( "#canvas").width(); // Used to check if the width of the Moodboard has changed after a window resize
+	window.mbwidth  = jQ( "#wowcanvas").width(); // Used to check if the width of the Moodboard has changed after a window resize
 	
 	// Receive the settings for this Moodboard by AJAX
 	try {
@@ -46,7 +46,7 @@ function initMoodboard ( wownonce, postid )
 			window.edit		 = typeof moodboardconfig.edit      !== 'undefined' ? moodboardconfig.edit      : false;
 			
 			// Create the Moodboard object, set it's height and set it's background
-			var Moodboard = jQ( "#canvas" );
+			var Moodboard = jQ( "#wowcanvas" );
 			var cssheight = canvasheight + "px";
 			Moodboard.css( { 'height'           : cssheight, 
 							 'background-repeat': bgrepeat, 
@@ -192,7 +192,7 @@ function initMoodboard ( wownonce, postid )
 					accept: function( d ) 
 					{ 
 						// Only allow elements from the search results bar to be added
-						return d.closest( "#canvasimages" ); 
+						return d.closest( "#wowcanvasimages" ); 
 					},
 					activeClass: "ui-state-highlight",
 					hoverClass:	 "drop-hover",
@@ -237,7 +237,7 @@ function loadCanvas ( security, wppostid )
 			} catch ( e ) { console.log( "Error Parsing Moodboard contents from Wordpress (check pushcanvas function): " + e ); }
 			
 			// Populate Variables
-			var Moodboard   = jQ( "#canvas" );
+			var Moodboard   = jQ( "#wowcanvas" );
 			var objects     = moodboardcontent.content; // Our Objects placed on this Moodboard
 			var index       = objects.length;			 // The number of objects placed on this Moodboard
 
@@ -301,12 +301,12 @@ function setDraggable( thumbnailID, payload )
 	dragThumbnail.draggable(
 	{
 		helper:      'clone',
-		containment: '#canvas',
+		containment: '#wowcanvas',
 		cursor:      'move',
 		revert:      'invalid',
 		stack:       '.dragging-overlay',
 		zIndex:      topZindex,
-		appendTo:    '#canvas',
+		appendTo:    '#wowcanvas',
 		refreshPositions: true,
 
 		start: function( event, ui ) 
@@ -369,7 +369,7 @@ function makeDraggable( ObjectID )
 	
 	overlayid.draggable(
 	{
-		containment: '#canvas',
+		containment: '#wowcanvas',
 		appendTo: 	 "body",
 		iframeFix: 	 true,
 		cursor: 	 'move',
@@ -425,7 +425,7 @@ function makeResizeable( ObjectID )
 		handles: "all",
 		maxWidth: 1000,
 		autoHide: false,
-		containment: "#canvas",
+		containment: "#wowcanvas",
 		
 		resize: function( event, ui ) 
 		{
@@ -535,7 +535,7 @@ function dragDropDiv( event, ui )
 			// Seamless image for background	
 			case "background#image":
 				//set the image as background for this moodboard
-				jQuery( '#canvas' ).css( "background-image", "url(" + ui.draggable.data( 'object' ).unescapedUrl + ")" );
+				jQuery( '#wowcanvas' ).css( "background-image", "url(" + ui.draggable.data( 'object' ).unescapedUrl + ")" );
 				break;
 			default:
 			
@@ -555,7 +555,7 @@ function saveMoodBoard( wownonce )
 	var jQ = jQuery;
 
 	// Get all objects on this Moodboard
-	var Moodboard = jQ( "#canvas" );
+	var Moodboard = jQ( "#wowcanvas" );
 	var group     = Moodboard.find( 'object' ); // find is faster() than children()
 	var canvas    = {};
 		
@@ -572,8 +572,8 @@ function saveMoodBoard( wownonce )
 		object[ 'height' ]    = parseInt( jQ( this ).css( 'height' ), 10 );
 		object[ 'thumbnail' ] = jQ( this ).attr( 'thumbnail' );
 		object[ 'zindex' ]    = jQ( this ).zIndex();
-				
-				
+
+						
 		// Prepare the differences per objecttype
 		switch ( object[ 'type' ] ) 
 		{
@@ -599,6 +599,7 @@ function saveMoodBoard( wownonce )
 
 		
 	// Send the MoodBoard to WordPress backend with AJAX call
+	Moodboard.find( '.deleteBtn' ).remove(); 
 	jQ.post(
 		ajaxurl,
     	{
@@ -788,7 +789,7 @@ function CreateSearchresultThumbnail( uniqueid, caption, url, width, payload )
 		{
     		id: "scroll" + uniqueid,
 			class: "scroll-content-item",
-		} ).prependTo( '#canvasimages' ) );
+		} ).prependTo( '#wowcanvasimages' ) );
 
 		setDraggable( "#" + thumbID , payload );
 	}
@@ -925,7 +926,7 @@ function resetImageResults()
 	 var jQ = jQuery; // Local cached version for jQuery
 
 	// Grab our content div, clear it.
-    jQ( "#canvasimages" ).empty();
+    jQ( "#wowcanvasimages" ).empty();
 	jQ( ".scroll-content" ).width( "100%" );
 	jQ( ".scroll-bar" ).hide();	
 	jQ( "#clearsearchresults" ).hide();	
@@ -940,7 +941,7 @@ function resetImageResults()
 // Last change: 2014.12.19
 function ResetOffsetWindow()
 {
-	var canvasOffset = jQuery( "#canvas" ).offset();
+	var canvasOffset = jQuery( "#wowcanvas" ).offset();
 	window.offsetX   = canvasOffset.left;
 	window.offsetY   = canvasOffset.top;
 }
@@ -976,7 +977,7 @@ function switcheditmode()
 	if ( jQ( "#switcheditmode" ).is( ':checked' ) )
 	{
 		jQ( "#wow-edit-panel" ).hide("slow");
-		jQ( "#canvas" ).removeClass( 'woweditcanvas' ).addClass( 'wowcanvas' ).undelegate( 'object', "mouseenter" ).delegate( 'object', 
+		jQ( "#wowcanvas" ).removeClass( 'woweditcanvas' ).addClass( 'wowcanvas' ).undelegate( 'object', "mouseenter" ).delegate( 'object', 
 		{ 
 			// Move the object in the stack to be on top of the Overlay-layer so we can actually click on the YouTube Videos etc
 			mouseenter: function () 
@@ -989,7 +990,7 @@ function switcheditmode()
 
 		if (  typeof( clickedonImage ) == "function" ) 
 		{
-			jQ( "#canvas" ).delegate( 'img', 
+			jQ( "#wowcanvas" ).delegate( 'img', 
 			{ 
 				click: function()
 				{
@@ -1006,7 +1007,7 @@ function switcheditmode()
 			} );
 		}
 		
-		var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()	
+		var group  = jQ( "#wowcanvas" ).find( 'object' ); // find is faster() than children()	
 		jQ( group ).each( function() 
 		{
 			jQ( this ).find( ".dragging-overlay" ).resizable( "disable" );
@@ -1015,17 +1016,17 @@ function switcheditmode()
 	else
 	{
 		jQ( "#wow-edit-panel" ).show("slow");
-		jQ( "#canvas" ).removeClass( 'wowcanvas' ).addClass( 'woweditcanvas' ).undelegate( 'object', "mouseenter" ).undelegate( 'img', "mouseover" ).undelegate( 'img', "click" ).delegate( 'object', 
+		jQ( "#wowcanvas" ).removeClass( 'wowcanvas' ).addClass( 'woweditcanvas' ).undelegate( 'object', "mouseenter" ).undelegate( 'img', "mouseover" ).undelegate( 'img', "click" ).delegate( 'object', 
 		{ 
 			mouseenter: function () 
 			{
 				// Show a Delete Button
-				ShowDeleteButton( jQ( this ) );
+				if ( $edit === true ) ShowDeleteButton( jQ( this ) );
 				showCaption( jQ( this ) );
 			} 
 		} );
 
-		var group  = jQ( "#canvas" ).find( 'object' ); // find is faster() than children()	
+		var group  = jQ( "#wowcanvas" ).find( 'object' ); // find is faster() than children()	
 		jQ( group ).each( function() 
 		{
 			jQ( this ).find( ".dragging-overlay" ).resizable( "enable" );

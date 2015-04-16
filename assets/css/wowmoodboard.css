@@ -2,7 +2,7 @@
 Part of Name: WoW Moodboard
 Plugin URI: http://wownmedia.com/wow-moodboard/
 Description: CSS for the Wow Moodboard plugin.
-Version: 1.0.6 [ 2015.01.12 ]
+Version: 1.1.1 [ 2015.04.13 ]
 Author: Wow New Media
 Author URI: http://wownmedia.com
 License: GPLv2 or later
@@ -45,10 +45,10 @@ License: GPLv2 or later
 /* Imagescroller */
 #imagescroller.scroll-pane{background:rgba(228,228,228,1);border:1px solid rgba(34,34,34,0.25);border-top-width:0;padding:1.5em 0;font-size:0.4em; margin-bottom:1.5em;overflow:hidden;width:100%;float:none;}
 #clearsearchresults{margin-right:1.5em;font-size:10px;float:right;width:auto;}
-#canvasimages.scroll-content {display:block;height:100px;overflow:hidden;width:100%;float:left;}
-#canvasimages div.scroll-content-item{float:left;width:auto;margin:0 5px;height:100px;line-height:100px;text-align:center;}
-#canvasimages img{height:70px;width:auto;}
-#canvasimages img, #canvas img{background-color:transparent; border-width:0; padding:0; box-shadow:none;}
+#wowcanvasimages.scroll-content {display:block;height:100px;overflow:hidden;width:100%;float:left;}
+#wowcanvasimages div.scroll-content-item{float:left;width:auto;margin:0 5px;height:100px;line-height:100px;text-align:center;}
+#wowcanvasimages img{height:70px;width:auto;}
+#wowcanvasimages img, #wowcanvas img{background-color:transparent; border-width:0; padding:0; box-shadow:none;}
 #imagescroller .ui-widget-content{border:none;}
 #imagescroller .scroll-bar-wrap {clear:left;padding:0;margin:0 1px;}
 #imagescroller .scroll-bar-wrap .ui-slider {border:0;height:2.5em;}
@@ -58,22 +58,23 @@ License: GPLv2 or later
 .drop-hover{overflow:visible;display:block;font-size:inherit;}
 
 /* Moodboard Canvas */
-#canvas.wowcanvas{ border-color:rgba(51,51,51,0.2);}
-#canvas.woweditcanvas{border-color:rgba(51,51,51,0.7);}
-#canvas.woweditcanvas,#canvas.wowcanvas{height:500px;width:100%;position:relative;overflow:hidden;border-style:dashed;border-radius:0 0 8px 8px;margin-bottom:2em;border-width:1px;background-color: transparent;-webkit-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);-moz-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25); background-position:top center; background-repeat:round round;}
+#wowcanvas.wowcanvas{ border-color:rgba(51,51,51,0.2);}
+#wowcanvas.woweditcanvas{border-color:rgba(51,51,51,0.7);}
+#wowcanvas.woweditcanvas,#wowcanvas.wowcanvas{height:500px;width:100%;position:relative;overflow:hidden;border-style:dashed;border-radius:0 0 8px 8px;margin-bottom:2em;border-width:1px;background-color: transparent;-webkit-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);-moz-box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25);box-shadow:4px 4px 15px 0px rgba(51,51,51,0.25); background-position:top center; background-repeat:round round;}
 #loading{height:100%;}
 #loading img{display:block;margin:1px auto;top:45%;position:relative;}
 
 /* Objects */
-#canvas object{position:absolute; background-color:transparent;box-shadow: 0 3px 10px rgba(0,0,0,0.7);}
-#canvas.woweditcanvas .overlay{position:absolute;bottom:0 !important;left:0 !important;right:0 !important;top:0 !important;}
-#canvas.woweditcanvas .dragging-overlay{cursor:move;}
-#canvas.wowcanvas .dragging-overlay{cursor:pointer;}
+#wowcanvas object{position:absolute; background-color:transparent;box-shadow: 0 3px 10px rgba(0,0,0,0.7);}
+#wowcanvas.woweditcanvas .overlay{position:absolute;bottom:0 !important;left:0 !important;right:0 !important;top:0 !important;}
+#wowcanvas.woweditcanvas .dragging-overlay{cursor:move;}
+#wowcanvas.wowcanvas .dragging-overlay{cursor:pointer;}
 .wow-caption, .wow-captionedit, .wow-urledit{background-color:rgba(0, 0, 0, 0.5);border-color: rgb(255, 255, 255);border-style:none;border-width:0;bottom:0; color: rgb(255, 255, 255);font-family:Arial;font-size:1em;font-weight:500;height:auto;line-height:1.5em;margin:0;min-height:1.5em;padding:0.25em 0;position:absolute;text-align:center;text-decoration:none;text-shadow:none;transform:translate3d(0px,0px,0px);width:100%;}
 .wow-urledit{bottom: 50px;}
 .wow-caption{display:none;}
 .defaultText {}
 .defaultTextActive { color: #a1a1a1; font-style: italic; }
 .wow-captionedit, .wow-urledit{background-color:white;color:#111;}
-#canvas div.instructions {color:rgba(51,51,51,0.4);margin:0 auto;max-width:75%;text-align:center;z-index:0;font-size:0.75em;}
-#canvas.woweditcanvas p.deleteBtn{background-color:rgba(255,0,0,0.7);border-bottom-right-radius:15px;color:white;cursor:pointer;font-size:17px;font-weight: bold;line-height:1em;padding:8px 10px;position:absolute;font-family:FontAwesome;margin:0;}
+#wowcanvas div.instructions {color:rgba(51,51,51,0.4);margin:0 auto;max-width:75%;text-align:center;z-index:0;font-size:0.75em;}
+#wowcanvas.wowcanvas p.deleteBtn{display:none;}
+#wowcanvas.woweditcanvas p.deleteBtn{background-color:rgba(255,0,0,0.7);border-bottom-right-radius:15px;color:white;cursor:pointer;font-size:17px;font-weight: bold;line-height:1em;padding:8px 10px;position:absolute;font-family:FontAwesome;margin:0;}
